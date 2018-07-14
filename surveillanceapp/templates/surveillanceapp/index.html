@@ -1,71 +1,80 @@
 {%  extends  'surveillanceapp/base.html' %}
 {% load static %}
 
+{% block extracss %}
+    <style>
+    .info-box{
+        padding: auto;
+    }
+    </style>
+{% endblock %}
+
 {%  block main-content %}
-    <!--overview start-->
     <div class="row">
       <div class="col-lg-12">
-        <h3 class="page-header"><i class="fa fa-laptop"></i> Dashboard</h3>
         <ol class="breadcrumb">
           <li><i class="fa fa-home"></i><a href="{% url 'surveillanceapp:index' %}">Home</a></li>
           <li><i class="fa fa-laptop"></i>Dashboard</li>
         </ol>
       </div>
     </div>
-
-    <!-- shows number of stations -->
-
-      <!--/.col-->
-
-
-      <!--/.col-->
-    </div>
-
-    <!--/.row-->
-
-    <!-- MAP starts -->
     <div class="row">
-      <div class="col-lg-8 col-md-12">
-
+        <div class="col-lg-3">
+            <div class="info-box blue-bg">
+              <i class="fa fa-map-marker"></i>
+              <div class="count">4</div>
+              <div>Stations</div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="info-box green-bg">
+              <i class="fa fa-signal"></i>
+              <div class="count">5</div>
+              <div>Reports Analysed</div>
+            </div>
+        </div>
+          <div class="col-lg-3">
+            <div class="info-box weather-bg">
+              <i class="fa fa-image"></i>
+              <div class="count">10</div>
+              <div>Surveillance Video</div>
+            </div>
+          </div>
+    </div>
+    <!-- MAP and Station Detail starts -->
+    <div class="row">
+        <div class="col-lg-8 col-md-12">
         <div class="panel panel-default">
           <div class="panel-heading">
             <h2><i class="fa fa-map-marker red"></i><strong>Stations Map</strong></h2>
-
-
-
             <div class="panel-actions">
-
               <a href="{% url 'surveillanceapp:index' %}" class="btn-setting"><i class="fa fa-refresh"></i></a>
             </div>
           </div>
           <div class="panel-body-map">
-
-            <div id="map" style="height:500px; width:100%;"></div>
-
+            <div id="map" style="height: 550px;width: 100%"></div>
           </div>
         </div>
       </div>
-
      <!-- MAP ENDS HERE -->
-
-      <div class="col-lg-3">
-        <a href="{% url 'surveillanceapp:stationlist' %}">
-            <div class="row">
-
-                <div class="info-box blue-bg">
-                    <i class="fa fa-map-marker"></i>
-                    <div class="count">{{ stationCount }}</div>
-                    <div>Stations</div>
-                </div>
-        <!--/.info-box-->
-            </div>
-        </a>
-        <div class="row">
-            <div style="font-size: 25px;" id="station-details">
-
-            </div>
+        <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+            <h2><i class="fa fa-info-circle"></i><strong>Stations Details</strong></h2>
+          </div>
+            <div class="panel-body">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <img src="{% static 'img/ratnapark.jpg' %}" style="width: 80%" class="center-block"></li>
+                    <li class="list-group-item">Station Id <p class="lead"> 0001</p></li>
+                    <li class="list-group-item">Station Name <p class="lead">Ratnapark</p></li>
+                    <li class="list-group-item">Latitude Position <p class="lead">29.77</p></li>
+                    <li class="list-group-item">Longitude Position <p class="lead">36.96</p></li>
+                </ul>
+              </div>
         </div>
       </div>
+    <!-- Station Detail ENDS HERE -->
     </div>
 {% endblock %}
 
