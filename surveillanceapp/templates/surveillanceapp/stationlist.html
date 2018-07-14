@@ -2,7 +2,7 @@
 {% load static %}
 
 {%  block main-content %}
-    <!--station list start -->
+
     <div class="row">
         <div class="col-lg-12">
             <ol class="breadcrumb">
@@ -13,7 +13,7 @@
         </div>
 
 
-    <!--station list starts here -->
+
     <div class="row">
     <div class="col-lg-11 col-md-12">
         <div class="panel panel-default">
@@ -21,6 +21,8 @@
             <h2><i class="fa fa-list"></i><strong>Station List</strong></h2>
           </div>
           <div class="panel-body">
+
+            <!--table starts here-->
             <table class="table bootstrap-datatable countries">
             <thead>
                 <tr>
@@ -32,16 +34,21 @@
                     <th>Analysis Progress</th>
                 </tr>
               </thead>
+
+            <!-- table station listing starts here -->
             {% for station in object_list %}
-            <a href="{% url 'surveillanceapp:stationdetails' station.pk %}">
-            <tbody>
+             <tbody>
+
+
                 <tr>
-                    <td><img src="{% static 'img/ratnapark.jpg' %}" style="height:50px; margin-top:-2px;" class="center-block"></td>
-                    <td>{{ station.station_name}}Name</td>
-                    <td>{{ station.station_id}}ID</td>
-                    <td>{{ station.lat_pos}}73</td>
-                    <td>{{ station.lang_pos}}64</td>
+                    <a href="{% url 'surveillanceapp:stationdetails' station.pk %}">
+                    <td><img src="{% static station.station_pic.url %}" style="height:50px; margin-top:-2px;" class="center-block"></td>
+                    <td>{{ station.station_name}}</td>
+                    <td>{{ station.station_id}}</td>
+                    <td>{{ station.lat_pos}}</td>
+                    <td>{{ station.lon_pos}}</td>
                     <td>
+
                     <div class="progress thin">
                       <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="73" aria-valuemin="0" aria-valuemax="100" style="width: 75%">
                       </div>
@@ -50,16 +57,21 @@
                     </div>
                     <span class="sr-only">73%</span>
                   </td>
+                  </a>
+
                 </tr>
-              </tbody>
-            </a>
+
+
+             </tbody>
+                <!-- table station listing ends here -->
+
             {% endfor %}
             </table>
+            <!-- table ends here -->
         </div>
         </div>
     </div>
     </div>
-    <!--station list ends here -->
 
 
 {% endblock %}
