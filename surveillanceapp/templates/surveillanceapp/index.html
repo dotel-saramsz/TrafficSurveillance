@@ -2,75 +2,71 @@
 {% load static %}
 
 {%  block main-content %}
-    <section class="wrapper">
-        <!--overview start-->
-        <div class="row">
-          <div class="col-lg-12">
-            <h3 class="page-header"><i class="fa fa-laptop"></i> Dashboard</h3>
-            <ol class="breadcrumb">
-              <li><i class="fa fa-home"></i><a href="{% url 'surveillanceapp:index' %}">Home</a></li>
-              <li><i class="fa fa-laptop"></i>Dashboard</li>
-            </ol>
-          </div>
-        </div>
+    <!--overview start-->
+    <div class="row">
+      <div class="col-lg-12">
+        <h3 class="page-header"><i class="fa fa-laptop"></i> Dashboard</h3>
+        <ol class="breadcrumb">
+          <li><i class="fa fa-home"></i><a href="{% url 'surveillanceapp:index' %}">Home</a></li>
+          <li><i class="fa fa-laptop"></i>Dashboard</li>
+        </ol>
+      </div>
+    </div>
 
-        <!-- shows number of stations -->
+    <!-- shows number of stations -->
 
-          <!--/.col-->
-
-
-          <!--/.col-->
-        </div>
-
-        <!--/.row-->
-
-        <!-- MAP starts -->
-        <div class="row">
-          <div class="col-lg-8 col-md-12">
-
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h2><i class="fa fa-map-marker red"></i><strong>Stations Map</strong></h2>
+      <!--/.col-->
 
 
+      <!--/.col-->
+    </div>
 
-                <div class="panel-actions">
+    <!--/.row-->
 
-                  <a href="{% url 'surveillanceapp:index' %}" class="btn-setting"><i class="fa fa-refresh"></i></a>
-                </div>
-              </div>
-              <div class="panel-body-map">
+    <!-- MAP starts -->
+    <div class="row">
+      <div class="col-lg-8 col-md-12">
 
-                <div id="map" style="height:500px; width:100%;"></div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h2><i class="fa fa-map-marker red"></i><strong>Stations Map</strong></h2>
 
-              </div>
+
+
+            <div class="panel-actions">
+
+              <a href="{% url 'surveillanceapp:index' %}" class="btn-setting"><i class="fa fa-refresh"></i></a>
             </div>
           </div>
+          <div class="panel-body-map">
 
-         <!-- MAP ENDS HERE -->
+            <div id="map" style="height:500px; width:100%;"></div>
 
-          <div class="col-lg-3">
-            <a href="{% url 'surveillanceapp:stationlist' %}">
-                <div class="row">
+          </div>
+        </div>
+      </div>
 
-                    <div class="info-box blue-bg">
-                        <i class="fa fa-map-marker"></i>
-                        <div class="count">{{ stationCount }}</div>
-                        <div>Stations</div>
-                    </div>
-            <!--/.info-box-->
-                </div>
-            </a>
+     <!-- MAP ENDS HERE -->
+
+      <div class="col-lg-3">
+        <a href="{% url 'surveillanceapp:stationlist' %}">
             <div class="row">
-                <div style="font-size: 25px;" id="station-details">
 
+                <div class="info-box blue-bg">
+                    <i class="fa fa-map-marker"></i>
+                    <div class="count">{{ stationCount }}</div>
+                    <div>Stations</div>
                 </div>
+        <!--/.info-box-->
             </div>
-          </div>
+        </a>
+        <div class="row">
+            <div style="font-size: 25px;" id="station-details">
+
+            </div>
         </div>
-
-    </section>
-
+      </div>
+    </div>
 {% endblock %}
 
 
