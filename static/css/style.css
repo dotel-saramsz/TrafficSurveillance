@@ -1802,11 +1802,11 @@ div[data-role="editor-toolbar"] {
 
 .info-box {
 
-  min-height: 140px;
+  min-height: auto;
 
   margin-bottom: 30px;
 
-  padding: 20px;
+  padding: 10px;
 
   color: white;
 
