@@ -1,3 +1,3 @@
 # TrafficSurveillance
 Minor Project on Vehicle Detection and Congestion Mapping
-Follow the project structur
+Follow the project structure
