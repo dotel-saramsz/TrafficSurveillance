@@ -37,5 +37,5 @@ class StationDetailView(DetailView):
         return render(request,'surveillanceapp/stationdetails.html',{'station':station})
 
 
-
-
+def test(request):
+    return render(request,'surveillanceapp/test.html')

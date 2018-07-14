@@ -2,8 +2,6 @@
 {% load static %}
 
 {%  block main-content %}
-
-
     <section class="wrapper">
         <!--overview start-->
         <div class="row">
@@ -71,12 +69,12 @@
           </div>
         </div>
 
+    </section>
+
+{% endblock %}
 
 
-
-
-
-
+{% block extrajs %}
     <!-- async defer has not been used because of loading issue -->
 
     <script async defer
@@ -84,7 +82,7 @@
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBAUsak2E8DcVtc3hUtrg06-pPHER8LXdk&callback=initMap">
 
     </script>
-<!-- MAP SCRIPT HERE-->
+    <!-- MAP SCRIPT HERE-->
     <script>
         var map;
         function initMap() {
@@ -141,10 +139,8 @@
 
     </script>
 
-
-    </section>
-
-
 {% endblock %}
+
+
 
 
