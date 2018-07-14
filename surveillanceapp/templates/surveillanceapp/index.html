@@ -1,0 +1,150 @@
+{%  extends  'surveillanceapp/base.html' %}
+{% load static %}
+
+{%  block main-content %}
+
+
+    <section class="wrapper">
+        <!--overview start-->
+        <div class="row">
+          <div class="col-lg-12">
+            <h3 class="page-header"><i class="fa fa-laptop"></i> Dashboard</h3>
+            <ol class="breadcrumb">
+              <li><i class="fa fa-home"></i><a href="{% url 'surveillanceapp:index' %}">Home</a></li>
+              <li><i class="fa fa-laptop"></i>Dashboard</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- shows number of stations -->
+
+          <!--/.col-->
+
+
+          <!--/.col-->
+        </div>
+
+        <!--/.row-->
+
+        <!-- MAP starts -->
+        <div class="row">
+          <div class="col-lg-8 col-md-12">
+
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h2><i class="fa fa-map-marker red"></i><strong>Stations Map</strong></h2>
+
+
+
+                <div class="panel-actions">
+
+                  <a href="{% url 'surveillanceapp:index' %}" class="btn-setting"><i class="fa fa-refresh"></i></a>
+                </div>
+              </div>
+              <div class="panel-body-map">
+
+                <div id="map" style="height:500px; width:100%;"></div>
+
+              </div>
+            </div>
+          </div>
+
+         <!-- MAP ENDS HERE -->
+
+          <div class="col-lg-3">
+            <a href="{% url 'surveillanceapp:stationlist' %}">
+                <div class="row">
+
+                    <div class="info-box blue-bg">
+                        <i class="fa fa-map-marker"></i>
+                        <div class="count">{{ stationCount }}</div>
+                        <div>Stations</div>
+                    </div>
+            <!--/.info-box-->
+                </div>
+            </a>
+            <div class="row">
+                <div style="font-size: 25px;" id="station-details">
+
+                </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+
+
+    <!-- async defer has not been used because of loading issue -->
+
+    <script async defer
+
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBAUsak2E8DcVtc3hUtrg06-pPHER8LXdk&callback=initMap">
+
+    </script>
+<!-- MAP SCRIPT HERE-->
+    <script>
+        var map;
+        function initMap() {
+            var loc = {lat: 27.7172, lng: 85.3240};
+            map = new google.maps.Map(
+                document.getElementById('map'), {zoom: 12, center: loc});
+
+
+            var coords = {};  //creating an object
+            {% for station in stations %}
+                coords[{{ station.station_id }}] = {   //array of object
+                    name: "{{ station.station_name }}",
+                    lat:{{ station.lat_pos }},
+                    lng:{{ station.lon_pos }}
+
+                };
+
+                console.log(coords[{{ station.station_id }}].lat);
+            {% endfor %}
+            var i;
+            for (i = 1; i <= Object.keys(coords).length; i++) {
+
+
+            var iw = new google.maps.InfoWindow();  //creating infowindow object
+
+                //initialize the map with markers
+
+                var loc = {lat: coords[i].lat, lng: coords[i].lng};
+
+
+                var marker = new google.maps.Marker({position: loc, map: map});
+                //add event listener
+
+                console.log(coords[i].name + '' + coords[i].lat + '');
+
+                //add event listener using callback function
+                google.maps.event.addListener(marker,'click',(function(marker,i) {
+                    return function () {
+                        var w = document.getElementById("station-details");
+                        w.innerHTML ="<div class='jumbotron blue-bg'>"+ "Id: "+i+
+                            '<br>'+coords[i].name
+                            + "<br>" + "Latitude:" +
+                            coords[i].lat + "<br>" + "Longitude:" + coords[i].lng+"<div>";
+                        iw.setContent(coords[i].name);
+                        iw.open(map, marker);
+                    }
+                }
+
+              )(marker,i));
+
+        }
+        }
+
+
+    </script>
+
+
+    </section>
+
+
+{% endblock %}
+
+
