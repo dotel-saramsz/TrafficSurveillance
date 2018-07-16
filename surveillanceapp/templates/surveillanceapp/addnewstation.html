@@ -1,0 +1,125 @@
+{% extends 'surveillanceapp/base.html' %}
+
+{% load widget_tweaks %}
+
+{% block extracss %}
+    <style>
+        .container-fluid {
+            border-radius: 5px;
+            background-color: #f2f2f2;
+            padding: 20px;
+            }
+
+
+    </style>
+
+{% endblock %}
+
+<!-- add new station form here -->
+
+
+{% block main-content %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <ol class="breadcrumb">
+              <li><i class="fa fa-home"></i><a href="{% url 'surveillanceapp:index' %}">Home</a></li>
+              <li><i class="fa fa-laptop"></i>Stations</li>
+              <li><i class="fa fa-location-arrow"></i>Add New Station</li>
+            </ol>
+          </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+
+        <!--add new station form starts here -->
+            <div class="col-lg-4">
+                <form class="form-horizontal" action="" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}  <!--cross site request forgery -->
+
+                    {% for field in form %}
+                        <div class="form-group">
+
+                                <span class="text-danger small">{{ field.errors }}</span>
+
+                            <label class="control-label col-sm-6">{{ field.label_tag }}</label>
+                            {% render_field field class="form-control" %}
+
+                        </div>
+                    {% endfor %}
+
+                    <div class="form-group">
+
+                                <button type="submit" class="btn btn-success">Submit</button>
+
+                    </div>
+                </form>
+
+            </div>
+            <!--form ends here -->
+
+            <!-- station map starts here -->
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Select Station Location</div>
+                    <div class="panel-body">
+                        <div id="station-map" style="width:auto;height:500px;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- station map ends here-->
+
+        </div>
+
+    </div>
+
+
+
+{% endblock %}
+
+{% block extrajs %}
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBAUsak2E8DcVtc3hUtrg06-pPHER8LXdk&callback=initMap">
+
+    </script>
+    <script>
+    function initMap(){
+        var loc = {lat: 27.7172, lng: 85.3240};
+        //set map properties
+        var myOptions={
+            zoom:15,
+            center:loc,
+            panControl:true,
+            zoomControl:true,
+            scaleControl:true
+        }
+
+        //render map
+        var map = new google.maps.Map(document.getElementById('station-map'), myOptions);
+
+         var marker=new google.maps.Marker({
+            map:map,
+            position:loc,
+            draggable:true
+
+
+        });
+
+        marker.addListener('dragend',function(){
+            //get the current position where the pointer was dropped
+            var point=marker.getPosition();
+
+            //center the map at given point
+            map.panTo(point);
+
+            console.log(point.lat()+''+point.lng());  //print the pointer location in console
+        });
+
+
+    }
+    </script>
+
+
+{% endblock %}
