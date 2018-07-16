@@ -1,7 +1,30 @@
 {% extends 'surveillanceapp/base.html' %}
 {% load static %}
 
+<!-- extra css block starts here -->
+{% block extracss %}
+
+    <style>
+        #station-clickable:hover{
+
+            background:lightgrey;
+        }
+        #add-station{
+            margin:10px;
+        }
+
+
+
+    </style>
+
+{% endblock %}
+<!-- extra css block ends here -->
+
+<!-- main content block starts here -->
+
 {%  block main-content %}
+
+
 
     <div class="row">
         <div class="col-lg-12">
@@ -10,12 +33,19 @@
               <li><i class="fa fa-laptop"></i>Stations</li>
             </ol>
           </div>
-        </div>
+    </div>
 
+    <a href="{% url 'surveillanceapp:stationcreate' %}">
+    <button class="btn pull-right bg-primary" id="add-station">
 
+            <i class="fa fa-laptop">Add New Station</i>
 
+    </button>
+    </a>
     <div class="row">
-    <div class="col-lg-11 col-md-12">
+
+    <div class="col-lg-12 col-md-12">
+
         <div class="panel panel-default">
           <div class="panel-heading">
             <h2><i class="fa fa-list"></i><strong>Station List</strong></h2>
@@ -40,8 +70,8 @@
              <tbody>
 
 
-                <tr>
-                    <a href="{% url 'surveillanceapp:stationdetails' station.pk %}">
+                <tr id="station-clickable" data-href="{% url 'surveillanceapp:stationdetails' pk=station.pk %}">
+
                     <td><img src="{% static station.station_pic.url %}" style="height:50px; margin-top:-2px;" class="center-block"></td>
                     <td>{{ station.station_name}}</td>
                     <td>{{ station.station_id}}</td>
@@ -57,7 +87,6 @@
                     </div>
                     <span class="sr-only">73%</span>
                   </td>
-                  </a>
 
                 </tr>
 
@@ -75,3 +104,20 @@
 
 
 {% endblock %}
+<!-- main content block ends here -->
+
+<!-- extra script block starts here -->
+{% block extrajs %}
+    <script>
+
+        //making table row clickable
+
+        $(document).ready(function () {
+            $("#station-clickable").click(function () {
+                window.location=$(this).data('href');
+            });
+        });
+    </script>
+{% endblock %}
+
+<!-- extra script block ends here -->

@@ -11,6 +11,8 @@ class Station(models.Model):
     def __str__(self):
         return self.station_name
 
+
+
 ## surveillance video class
 ## this class has many to one relation with Station class
 class SurveillanceVideo(models.Model):

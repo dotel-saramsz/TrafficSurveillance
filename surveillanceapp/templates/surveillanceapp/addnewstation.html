@@ -9,13 +9,22 @@
             background-color: #f2f2f2;
             padding: 20px;
             }
+        button {
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            color:white;
+            }
+
+        button:hover {
+            box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+            color:white;
+            }
 
 
     </style>
 
 {% endblock %}
 
-<!-- add new station form here -->
+
 
 
 {% block main-content %}
@@ -37,22 +46,32 @@
                 <form class="form-horizontal" action="" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}  <!--cross site request forgery -->
 
-                    {% for field in form %}
+                        <div class="form-group">
+                            <span class="text-danger small">{{ form.station_name.errors }}</span>
+                            <label class="control-label col-sm-6">{{ form.station_name.label_tag }}</label>
+                            <input class="form-control" name="station_name" placeholder="Enter your name">
+                        </div>
+
+                        <div class="form-group">
+                            <span class="text-danger small">{{ form.lat_pos.errors }}</span>
+                            <label class="control-label col-sm-6">{{ form.lat_pos.label_tag }}</label>
+                            <input class="form-control" id="lat_pos" name="lat_pos" placeholder="Drag the marker">
+                        </div>
                         <div class="form-group">
 
-                                <span class="text-danger small">{{ field.errors }}</span>
+                            <span class="text-danger small">{{ form.lon_pos.errors }}</span>
 
-                            <label class="control-label col-sm-6">{{ field.label_tag }}</label>
-                            {% render_field field class="form-control" %}
+                            <label class="control-label col-sm-6">{{ form.lon_pos.label_tag }}</label>
+                            <input class="form-control" name="lon_pos" id="lon_pos" placeholder="Drag the marker">
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-6">{{ field.station_pic.label_tag }}</label>
+                            {% render_field form.station_pic class="form-control" %}
 
                         </div>
-                    {% endfor %}
-
-                    <div class="form-group">
-
+                        <div class="form-group">
                                 <button type="submit" class="btn btn-success">Submit</button>
-
-                    </div>
+                        </div>
                 </form>
 
             </div>
@@ -115,6 +134,8 @@
             map.panTo(point);
 
             console.log(point.lat()+''+point.lng());  //print the pointer location in console
+            document.getElementById('lat_pos').setAttribute("value",point.lat());
+            document.getElementById('lon_pos').setAttribute("value",point.lng());
         });
 
 

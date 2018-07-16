@@ -17,8 +17,15 @@
         </div>
         <div class="row">
         <!-- station map starts here -->
-            <div class="col-md-8" id="station-map" style="width:70%;height:500px;">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Station Map</div>
+                    <div class="panel-body">
+                        <div id="station-map" style="width:auto;height:300px;">
 
+                        </div>
+                    </div>
+                </div>
             </div>
         <!-- station map ends here -->
 
@@ -36,14 +43,7 @@
               </div>
             <!-- station info ends here -->
 
-            <!-- station report starts here -->
-              <div class="row" >
-                   <div class="info-box blue-bg" style="height:30px; margin-bottom: 5px;">
-                        <i class="fa fa-signal"></i>
-                         <div style="font-size: medium;">Statistics Report</div>
-                    </div>
-              </div>
-            <!-- station report ends here -->
+
 
               <!-- station photo here -->
             <div class="row">
@@ -54,6 +54,10 @@
             <!-- station photo ends here -->
 
           </div>
+
+
+
+
         <!-- station info ends here -->
 
 
@@ -83,7 +87,11 @@
 
             map = new google.maps.Map(
                 document.getElementById('station-map'),
-                {zoom: 18, center: coords}
+                {   zoom: 18,
+                    center: coords,
+                    zoomControl:false,
+                    scaleControl:false,
+                    panControl:false}
                 );
 
             var iw=new google.maps.InfoWindow();  //initialize info window
