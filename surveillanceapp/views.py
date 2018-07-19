@@ -44,6 +44,7 @@ class StationListView(ListView):
     model = Station
     title="Station List"
     template_name = 'surveillanceapp/stationlist.html'
+    paginate_by=6
     context={
         'title':title
     }

@@ -1,7 +1,15 @@
 {% extends 'surveillanceapp/base.html' %}
 {% load static %}
 
+{% block extracss %}
+    <style>
+
+    </style>
+{% endblock %}
+
 {%  block main-content %}
+
+
 
     <!--station detail start -->
     <!--overview start-->
@@ -14,10 +22,19 @@
               <li><i class="fa fa-map-marker"></i>{{ station.station_name }}</li>
             </ol>
           </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <ul class="nav nav-tabs">
+              <li class="active"><a data-toggle="tab" href="#">Overview</a></li>
+              <li><a data-toggle="tab" href="#">Performance Charts</a></li>
+
+            </ul>
         </div>
-        <div class="row">
+    </div>
+    <div class="row" style="margin-top:8px;">
         <!-- station map starts here -->
-            <div class="col-md-6">
+            <div class="col-lg-5">
                 <div class="panel panel-default">
                     <div class="panel-heading">Station Map</div>
                     <div class="panel-body">
@@ -30,40 +47,73 @@
         <!-- station map ends here -->
 
 
-          <div class="col-md-3" style="margin-left: 5px;">
-            <!--station info here -->
-              <div class="row">
-                <div class="info-box blue-bg" style="margin-bottom: 5px;">
+              <div class="col-lg-3">
+                <!--station info here -->
 
-                  <div>{{ station.station_name }}</div><br>
-                  <div class="fa fa-location-arrow">Lat: {{ station.lat_pos }}</div><br>
-                  <div class="fa fa-location-arrow">Lng: {{ station.lon_pos}}</div>
+                    <div class="info-box blue-bg" style="margin-bottom: 5px;">
 
-                 </div>
-              </div>
-            <!-- station info ends here -->
+                      <div>{{ station.station_name }}</div><br>
+                      <div class="fa fa-location-arrow">Lat: {{ station.lat_pos }}</div><br>
+                      <div class="fa fa-location-arrow">Lng: {{ station.lon_pos}}</div>
+
+                     </div>
+
+                <!-- station info ends here -->
 
 
 
               <!-- station photo here -->
-            <div class="row">
 
-                <img class="img-responsive" src="{% static station.station_pic.url %}"
-                     alt="{{ station.station_name }}" style="width:auto; height:200px;">
-            </div>
-            <!-- station photo ends here -->
+                    <img class="img-responsive" src="{% static station.station_pic.url %}"
+                         alt="{{ station.station_name }}" style="width:auto; height:200px;">
 
-          </div>
+                <!-- station photo ends here -->
+
+              </div>
+              <div class="col-lg-4">
+                    <div class="info-box green-bg">
+                      <i class="fa fa-signal"></i>
+                      <div class="count">GRAPH HERE</div>
+                    </div>
+              </div>
 
 
 
-
-        <!-- station info ends here -->
-
-
+     <!-- station info ends here -->
     </div>
+    <!-- surveillance video list starts here -->
+    <div class="row">
 
-    <!--station detail ends here -->
+        <div class="col-lg-12 col-md-12">
+
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h2><i class="fa fa-list"></i><strong>Surveillance Videos</strong></h2>
+
+              </div>
+
+              <div class="panel-body">
+
+                <!--table starts here-->
+                <table class="table bootstrap-datatable countries">
+                <thead>
+                    <tr>
+                        <th>Actions</th>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Location</th>
+                        <th>Analytics</th>
+
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+            </div>
+    </div>
+    <!-- surveillance video list ends here -->
+
+
 {% endblock %}
 
 {% block extrajs %}
