@@ -5,10 +5,11 @@
 {% block extracss %}
 
     <style>
-        #station-clickable:hover{
+        .station-clickable:hover{
 
             background:lightgrey;
         }
+
         #add-station{
             margin:10px;
         }
@@ -70,7 +71,7 @@
              <tbody>
 
 
-                <tr id="station-clickable" data-href="{% url 'surveillanceapp:stationdetails' pk=station.pk %}">
+                <tr class="station-clickable" data-href="{% url 'surveillanceapp:stationdetails' pk=station.pk %}">
 
                     <td><img src="{% static station.station_pic.url %}" style="height:50px; margin-top:-2px;" class="center-block"></td>
                     <td>{{ station.station_name}}</td>
@@ -112,11 +113,11 @@
 
         //making table row clickable
 
-        $(document).ready(function () {
-            $("#station-clickable").click(function () {
+
+            $(".station-clickable").click(function () {
                 window.location=$(this).data('href');
             });
-        });
+
     </script>
 {% endblock %}
 
