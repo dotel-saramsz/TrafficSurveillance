@@ -39,7 +39,9 @@ class SurveillanceReport(models.Model):
     video=models.OneToOneField(SurveillanceVideo, on_delete=models.CASCADE)
     avg_capacity_index=models.FloatField()
     avg_count_index=models.FloatField()
-    json_data=models.FileField()
+    congestion_data=models.FileField()
+    count_data=models.FileField()
+    contribution_data=models.FileField()
 
     def __str__(self):
         return self.report_id
