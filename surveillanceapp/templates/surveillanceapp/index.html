@@ -1,14 +1,23 @@
 {%  extends  'surveillanceapp/base.html' %}
 {% load static %}
 
+<!-- extra css block starts here -->
 {% block extracss %}
+
     <style>
     .info-box{
         padding: auto;
     }
-    </style>
-{% endblock %}
+    #station-panel{
+        display: none;   /* hide station-panel in the beginning */
+    }
 
+    </style>
+
+{% endblock %}
+<!-- extra css block ends here -->
+
+<!-- main content block starts here -->
 {%  block main-content %}
     <div class="row">
       <div class="col-lg-12">
@@ -22,7 +31,7 @@
         <div class="col-lg-3">
             <div class="info-box blue-bg">
               <i class="fa fa-map-marker"></i>
-              <div class="count">4</div>
+              <div class="count">{{ stationCount }}</div>
               <div>Stations</div>
             </div>
         </div>
@@ -58,29 +67,31 @@
       </div>
      <!-- MAP ENDS HERE -->
         <div class="col-lg-4">
-        <div class="panel panel-default">
+        <div class="panel panel-default" id="station-panel">
             <div class="panel-heading">
-            <h2><i class="fa fa-info-circle"></i><strong>Stations Details</strong></h2>
-          </div>
+                <h2><i class="fa fa-info-circle"></i><strong>Station Info</strong></h2>
+                <div class="panel-actions"><i class="fa fa-times" id="close-station-info"></i></div>
+            </div>
             <div class="panel-body">
+                <a id="station-info-clickable">
                 <ul class="list-group">
-                    <li class="list-group-item">
-                        <img src="{% static 'img/ratnapark.jpg' %}" style="width: 80%" class="center-block"></li>
-                    <li class="list-group-item">Station Id <p class="lead"> 0001</p></li>
-                    <li class="list-group-item">Station Name <p class="lead">Ratnapark</p></li>
-                    <li class="list-group-item">Latitude Position <p class="lead">29.77</p></li>
-                    <li class="list-group-item">Longitude Position <p class="lead">36.96</p></li>
+                    <li class="list-group-item" >Station Id <p class="lead" id="station-id"></p></li>
+                    <li class="list-group-item" >Station Name <p class="lead" id="station-name"></p></li>
+                    <li class="list-group-item" >Latitude Position <p class="lead" id="lat-pos"></p></li>
+                    <li class="list-group-item" >Longitude Position <p class="lead" id="lon-pos"></p></li>
                 </ul>
+                </a>
               </div>
         </div>
-      </div>
+        </div>
     <!-- Station Detail ENDS HERE -->
     </div>
 {% endblock %}
+<!-- main content block ends here -->
 
-
+<!-- extra script block starts here -->
 {% block extrajs %}
-    <!-- async defer has not been used because of loading issue -->
+
 
     <script async defer
 
@@ -89,6 +100,8 @@
     </script>
     <!-- MAP SCRIPT HERE-->
     <script>
+
+
         var map;
         function initMap() {
             var loc = {lat: 27.7172, lng: 85.3240};
@@ -99,6 +112,7 @@
             var coords = {};  //creating an object
             {% for station in stations %}
                 coords[{{ station.station_id }}] = {   //array of object
+                    id:{{station.station_id }},
                     name: "{{ station.station_name }}",
                     lat:{{ station.lat_pos }},
                     lng:{{ station.lon_pos }}
@@ -107,6 +121,7 @@
 
                 console.log(coords[{{ station.station_id }}].lat);
             {% endfor %}
+
             var i;
             for (i = 1; i <= Object.keys(coords).length; i++) {
 
@@ -126,13 +141,20 @@
                 //add event listener using callback function
                 google.maps.event.addListener(marker,'click',(function(marker,i) {
                     return function () {
-                        var w = document.getElementById("station-details");
-                        w.innerHTML ="<div class='jumbotron blue-bg'>"+ "Id: "+i+
-                            '<br>'+coords[i].name
-                            + "<br>" + "Latitude:" +
-                            coords[i].lat + "<br>" + "Longitude:" + coords[i].lng+"<div>";
+                        document.getElementById("station-id").innerHTML=coords[i].id;
+                        document.getElementById("station-name").innerHTML=coords[i].name;
+                        document.getElementById("lat-pos").innerHTML=coords[i].lat;
+                        document.getElementById("lon-pos").innerHTML=coords[i].lng;
+                        document.getElementById('station-panel').style.display='block';
+                        document.getElementById('station-info-clickable').addEventListener('click',function(){
+                           //add event listener to redirect to station detail page
+                        });
+
+                        //set infowindow content
                         iw.setContent(coords[i].name);
                         iw.open(map, marker);
+
+
                     }
                 }
 
@@ -141,10 +163,18 @@
         }
         }
 
+        //close-station-info icon listener
+        //sets station panel css display attribute to none
+        document.getElementById('close-station-info').addEventListener('click',function(){
+                           document.getElementById('station-panel').style.display='none';
+                        });
+
 
     </script>
 
 {% endblock %}
+
+<!-- extra script block ends here -->
 
 
 
