@@ -11,12 +11,14 @@ class Station(models.Model):
     def __str__(self):
         return self.station_name
 
+
+
 ## surveillance video class
 ## this class has many to one relation with Station class
 class SurveillanceVideo(models.Model):
     surveillance_id=models.AutoField(primary_key=True)
     surveillancevideo_name=models.CharField(max_length=25)  #surveillance video name
-    timestamp=models.DateTimeField()
+    timestamp=models.DateTimeField(auto_now_add=True)
     report=models.BooleanField(default=False)
     lane_dimen1=models.FloatField()
     lane_dimen2=models.FloatField()
@@ -37,15 +39,9 @@ class SurveillanceReport(models.Model):
     video=models.OneToOneField(SurveillanceVideo, on_delete=models.CASCADE)
     avg_capacity_index=models.FloatField()
     avg_count_index=models.FloatField()
-    json_data=models.FileField()
-    bike_count_list=models.CharField(max_length=5)
-    car_count_list=models.CharField(max_length=5)
-    taxi_count_list=models.CharField(max_length=5)
-    pickup_count_list=models.CharField(max_length=5)
-    micro_count_list=models.CharField(max_length=5)
-    bus_count_list=models.CharField(max_length=5)
-    truck_count_list=models.CharField(max_length=5)
-    tempo_count_list=models.CharField(max_length=5)
+    congestion_data=models.FileField()
+    count_data=models.FileField()
+    contribution_data=models.FileField()
 
     def __str__(self):
         return self.report_id
