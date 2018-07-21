@@ -8,4 +8,5 @@ urlpatterns=[
     path('stations/',views.StationListView.as_view(),name='stationlist'),
     path('stations/<int:pk>',views.StationDetailView.as_view(),name='stationdetails'),
     path('test',views.test,name='test'),
+    path('report', views.report, name='report'),
 ]
