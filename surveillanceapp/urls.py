@@ -9,4 +9,5 @@ urlpatterns=[
     path('stations/<int:pk>',views.StationDetailView.as_view(),name='stationdetails'),
     path('stations/addnewstation/',views.addNewStation,name='stationcreate'),
     path('test',views.test,name='test'),
+    path('report', views.report, name='report'),
 ]

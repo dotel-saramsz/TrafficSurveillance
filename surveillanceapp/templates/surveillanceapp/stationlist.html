@@ -6,12 +6,11 @@
 
     <style>
         .station-clickable:hover{
-
             background:lightgrey;
         }
 
         #add-station{
-            margin:10px;
+            margin:5%;
         }
 
     </style>
@@ -22,9 +21,6 @@
 <!-- main content block starts here -->
 
 {%  block main-content %}
-
-
-
     <div class="row">
         <div class="col-lg-12">
             <ol class="breadcrumb">
@@ -34,15 +30,10 @@
           </div>
     </div>
 
-    <a href="{% url 'surveillanceapp:stationcreate' %}">
-    <button class="btn pull-right bg-primary" id="add-station">
 
-            <i class="fa fa-laptop">Add New Station</i>
-
-    </button>
-    </a>
     <!-- pagination here -->
     <div class="row">
+    <div class="col-lg-9">
         {% if is_paginated %}
             <ul class="pagination">
         {% if page_obj.has_previous %}
@@ -65,6 +56,13 @@
             </ul>
         {% endif %}
     </div>
+    <div class="col-lg-3 pull-right">
+        <a href="{% url 'surveillanceapp:stationcreate' %}">
+    <button class="btn pull-right bg-primary" id="add-station">
+            <span class="fa fa-edit"> Add New Station</span>
+    </button>
+    </a></div>
+    </div>
     <!-- end of pagination -->
     <div class="row">
 
@@ -73,48 +71,41 @@
         <div class="panel panel-default">
           <div class="panel-heading">
             <h2><i class="fa fa-list"></i><strong>Station List</strong></h2>
-
           </div>
-
           <div class="panel-body">
-
             <!--table starts here-->
             <table class="table bootstrap-datatable countries">
             <thead>
                 <tr>
-                    <th>Actions</th>
                     <th>Image</th>
                     <th>Station Name</th>
                     <th>Station ID</th>
                     <th>Latitude</th>
                     <th>Longitude</th>
                     <th>Analysis Progress</th>
+                    <th>Actions</th>
                 </tr>
               </thead>
 
             <!-- table station listing starts here -->
             {% for station in object_list %}
              <tbody>
-
-
                 <tr class="station-clickable" data-href="{% url 'surveillanceapp:stationdetails' pk=station.pk %}">
-                    <td><i class="fa fa-trash-o"></i></td>
                     <td><img src="{% static station.station_pic.url %}" style="height:50px; margin-top:-2px;" class="center-block"></td>
-                    <td>{{ station.station_name}}</td>
+                    <td><strong>{{ station.station_name}}</strong></td>
                     <td>{{ station.station_id}}</td>
                     <td>{{ station.lat_pos}}</td>
                     <td>{{ station.lon_pos}}</td>
                     <td>
-
-                    <div class="progress thin">
-                      <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="73" aria-valuemin="0" aria-valuemax="100" style="width: 75%">
-                      </div>
-                      <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="27" aria-valuemin="0" aria-valuemax="100" style="width: 25%">
-                      </div>
+                    <div class="progress thin" style="margin: 2%;">
+                        <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="73" aria-valuemin="0" aria-valuemax="100" style="width: 75%">
+                        </div>
+                        <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="27" aria-valuemin="0" aria-valuemax="100" style="width: 25%">
+                        </div>
                     </div>
                     <span class="sr-only">73%</span>
-                  </td>
-
+                    </td>
+                    <td><button class="btn btn-primary fa fa-trash-o"> </button></td>
                 </tr>
 
 

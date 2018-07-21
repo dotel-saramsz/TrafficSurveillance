@@ -1,0 +1,73 @@
+{% extends 'surveillanceapp/base.html' %}
+{% load static %}
+
+{% block main-content %}
+    <div class="row">
+      <div class="col-lg-12">
+        <ol class="breadcrumb">
+          <li><i class="fa fa-home"></i><a href="{% url 'surveillanceapp:index' %}">Home</a></li>
+          <li><i class="fa fa-laptop"></i>Analysis</li>
+        </ol>
+      </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <section class="panel panel-default">
+              <div class="panel-heading">
+                  Report
+              </div>
+            <div class="panel-body">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#vcount" data-target="#vcount" data-toggle="tab">Count Report</a>
+                    </li>
+                    <li><a href="#vcongestion" data-toggle="tab" data-target="#vcongestion">Congestion Report</a>
+                    </li>
+                    <li><a href="#vtotal" data-toggle="tab" data-target="#vtotal">Capacity Report</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade in active" id="vcount">
+                        <div class="col-lg-12 col-md-12">
+                         {% for vehicle in vclass_names %}
+                         <div class="col-lg-6 panel panel-primary">
+                              <div class="panel-body" id="{{ vehicle }}count"></div>
+                         </div>
+                         {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="vcongestion">
+                        <div class="col-lg-12 col-md-12">
+                         {% for vehicle in vclass_names %}
+                         <div class="col-lg-6 panel panel-primary">
+                              <div class="panel-body" id="{{ vehicle }}con"></div>
+                         </div>
+                         {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="vtotal">
+                        <div class="col-lg-12 col-md-12">
+                         <h3>code for total</h3>
+                        </div>
+                    </div>
+                 </div>
+
+             </div>
+            </section>
+    </div>
+{% endblock %}
+
+{% block extrajs %}
+    <script src="{% static 'js/highcharts.js' %}"></script>
+    <script>
+        {% for chart in vcounts %}
+        Highcharts.chart({{ chart|safe }}.xAxis.categories+"count", {{ chart|safe }});
+        {% endfor %}
+        {% for chart in vcons %}
+        Highcharts.chart({{ chart|safe }}.xAxis.categories+"con", {{ chart|safe }});
+        {% endfor %}
+
+    </script>
+{% endblock %}
