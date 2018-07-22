@@ -1,0 +1,82 @@
+{% extends 'surveillanceapp/base.html' %}
+{% load static %}
+
+{% block main-content %}
+    <div class="row">
+        <div class="col-lg-2">
+            <button id="video-play-btn" class="btn btn-primary">Play Video</button>
+            <button id="video-stop-btn" class="btn btn-danger" style="display: none">Stop Video</button>
+        </div>
+        <div id="graph-body" class="col-lg-10">
+            <ul class="list-group" id="list-body">
+
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4 col-lg-push-4">
+            <a href="{% url 'surveillanceapp:stationlist' %}" id="report-btn" class="btn btn-success" style="display: none">View Report</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extrajs %}
+    <script>
+        var playbtn = document.querySelector('#video-play-btn');
+        var stopbtn = document.querySelector('#video-stop-btn');
+        var reportbtn = document.querySelector('#report-btn');
+        var listbody = document.querySelector('#list-body');
+        var socket = null;
+
+        function showbtn() {
+            reportbtn.style.display = 'inline';
+            stopbtn.style.display = 'none';
+        }
+
+        playbtn.addEventListener('click',function (event) {
+            socket = new WebSocket('ws://'+window.location.host+'/video/v100');
+            socket.onopen = function open() {
+                console.log('Websocket connection has opened successfully');
+                socket.send(JSON.stringify({
+                    'start': true,
+                    'message': 'You can start the video'
+                }));
+                listbody.innerHTML = '';
+                stopbtn.style.display = 'inline';
+                reportbtn.style.display = 'none';
+            };
+            socket.onclose = function close(ev) {
+                console.log('Websocket connection is now being closed');
+                reportbtn.style.display = 'inline';
+                stopbtn.style.display = 'none';
+            };
+            socket.onmessage = function message(event) {
+                var received = JSON.parse(event.data);
+                console.log(received);
+                if(received['eof'] == true){
+                    socket.close(1000,'Server closed it');
+                    {#showbtn();#}
+                }
+                else {
+                    listelem = document.createElement('li');
+                    listelem.textContent = received['message'];
+                    listbody.appendChild(listelem);
+                }
+            };
+            if(socket.readyState == WebSocket.OPEN){
+                socket.onopen();
+            }
+        });
+
+        stopbtn.addEventListener('click',function (ev) {
+            socket.close(1000,'Stop button was pressed');
+            {#console.log('Close was called: '+socket.readyState);#}
+            {#if(socket.readyState == WebSocket.CLOSED){#}
+            {#    socket.onclose();#}
+            {##}
+            {#showbtn();#}
+        });
+
+    </script>
+{% endblock %}
+

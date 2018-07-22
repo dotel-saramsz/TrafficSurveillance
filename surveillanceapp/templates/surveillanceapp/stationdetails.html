@@ -1,0 +1,100 @@
+{% extends 'surveillanceapp/base.html' %}
+{% load static %}
+
+{%  block main-content %}
+
+    <!--station detail start -->
+    <!--overview start-->
+    <div class="row">
+        <div class="col-lg-12">
+            <ol class="breadcrumb">
+              <li><i class="fa fa-home"></i><a href="{% url 'surveillanceapp:index' %}">Home</a></li>
+                <li><i class="fa fa-laptop"></i><a href="{% url 'surveillanceapp:stationlist' %}">Stations</a></li>
+              <li><i class="fa fa-map-marker"></i>{{ station.station_name }}</li>
+            </ol>
+        </div>
+    </div>
+    <div class="row">
+        <!-- station map starts here -->
+        <div class="col-md-8" id="station-map" style="width:70%;height:500px;">
+
+        </div>
+        <!-- station map ends here -->
+
+
+        <div class="col-md-3" style="margin-left: 5px;">
+            <!--station info here -->
+            <div class="row">
+            <div class="info-box blue-bg" style="margin-bottom: 5px;">
+
+              <div>{{ station.station_name }}</div><br>
+              <div class="fa fa-location-arrow">Lat: {{ station.lat_pos }}</div><br>
+              <div class="fa fa-location-arrow">Lng: {{ station.lon_pos}}</div>
+
+             </div>
+            </div>
+            <!-- station info ends here -->
+
+            <!-- station report starts here -->
+            <div class="row" >
+               <div class="info-box blue-bg" style="height:30px; margin-bottom: 5px;">
+                    <i class="fa fa-signal"></i>
+                     <div style="font-size: medium;">Statistics Report</div>
+                </div>
+            </div>
+            <!-- station report ends here -->
+
+            <!-- station photo here -->
+            <div class="row">
+
+                <img class="img-responsive" src="{% static station.station_pic.url %}"
+                     alt="{{ station.station_name }}" style="width:auto; height:200px;">
+            </div>
+            <!-- station photo ends here -->
+
+        </div>
+
+    </div>
+
+    <!--station detail ends here -->
+{% endblock %}
+
+{% block extrajs %}
+    <!-- map script-->
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBAUsak2E8DcVtc3hUtrg06-pPHER8LXdk&callback=initMap">
+
+    </script>
+
+
+    <script>
+
+        //initialize map
+        var map;
+        function initMap() {
+            //get station coordinates in js object
+            var coords = {
+                lat: {{station.lat_pos }},
+                lng:{{station.lon_pos }}
+            };
+
+            map = new google.maps.Map(
+                document.getElementById('station-map'),
+                {zoom: 12, center: coords}
+                );
+
+            var iw=new google.maps.InfoWindow();  //initialize info window
+            console.log("I am okay here");
+
+            var marker = new google.maps.Marker({position: coords, map: map}); //show the marker in map
+
+            //marker onclick event handler
+            marker.addListener('click',function(){
+                iw.setContent('{{ station.station_name }}');
+                iw.open(map, marker);
+            });
+
+        }
+    </script>
+
+{% endblock %}

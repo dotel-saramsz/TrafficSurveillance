@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {#  <link rel="shortcut icon" href="img/favicon.png">#}
+
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'css/bootstrap.min.css'%}" rel="stylesheet">
+    <!-- bootstrap theme -->
+    <link href="{% static 'css/bootstrap-theme.css'%}" rel="stylesheet">
+    <!--external css-->
+    <!-- font icon -->
+    <link href="{%  static 'css/elegant-icons-style.css' %}" rel="stylesheet" />
+    <link href="{%  static 'css/font-awesome.min.css' %}" rel="stylesheet" />
+    <!-- Custom styles -->
+    <!--<link rel="stylesheet" href="css/fullcalendar.css">-->
+    <link href="{%  static 'css/widgets.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{%  static 'css/style-responsive.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/xcharts.min.css' %}" rel=" stylesheet">
+    <link href="{%  static 'css/jquery-ui-1.10.4.min.css' %}" rel="stylesheet">
+
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script src="{% static 'js/jquery-ui-1.10.4.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-ui-1.9.2.custom.min.js' %}"></script>
+
+    <title>{{ title }}</title>
+
+    {% block extracss %}
+    {% endblock %}
+
+</head>
+
+<body>
+  <!-- container section start -->
+    <section id="container" class="">
+
+        <header class="header dark-bg">
+          <div class="toggle-nav">
+            <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"><i class="icon_menu"></i></div>
+          </div>
+
+          <!--logo start-->
+          <a href="{%  url 'surveillanceapp:index' %}" class="logo">TRAFFIC MONITORING AND SURVEILLANCE</a>
+          <!--logo end-->
+
+
+        </header>
+        <!--header end-->
+
+        <!--sidebar start-->
+        <aside>
+          <div id="sidebar" class="nav-collapse ">
+            <!-- sidebar menu start-->
+            <ul class="sidebar-menu">
+              <li class="active">
+                <a class="" href="{%  url 'surveillanceapp:index' %}">
+                      <i class="icon_house_alt"></i>
+                      <span>Dashboard</span>
+                  </a>
+              </li>
+            <li class="active" >
+            <a class="" href="{% url 'surveillanceapp:stationlist' %}">
+                  <i class="icon_search_alt"></i>
+                  <span>Stations</span>
+              </a>
+          </li>
+            <li class="active">
+            <a class="" href="{% url 'surveillanceapp:test' %}">
+                  <i class="icon_datareport_alt"></i>
+                  <span>Analytics</span>
+              </a>
+          </li>
+
+                <li class="active">
+            <a class="" href="#">
+                  <i class="icon_book"></i>
+                  <span>Documentation</span>
+              </a>
+          </li>
+            </ul>
+            <!-- sidebar menu end-->
+          </div>
+        </aside>
+        <!--sidebar end-->
+
+        <!--main content start-->
+        <section id="main-content">
+            <section class="wrapper">
+                {% block main-content %}
+                {% endblock %}
+            </section>
+        </section>
+
+    </section>
+
+    <!-- bootstrap -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!-- nice scroll -->
+    <script src="{% static 'js/jquery.scrollTo.min.js' %}"></script>
+    <script src="{% static 'js/jquery.nicescroll.js' %}" type="text/javascript"></script>
+
+    <!--custom script for all page-->
+    <script src="{% static 'js/scripts.js' %}"></script>
+    {% block extrajs %}
+    {% endblock %}
+
+</body>
+
+</html>

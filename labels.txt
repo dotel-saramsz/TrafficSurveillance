@@ -1,0 +1,8 @@
+Tempo
+Bike
+Car
+Taxi
+Micro
+Pickup
+Bus
+Truck
