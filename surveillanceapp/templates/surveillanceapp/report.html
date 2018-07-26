@@ -22,7 +22,7 @@
                     </li>
                     <li><a href="#vcongestion" data-toggle="tab" data-target="#vcongestion">Congestion Report</a>
                     </li>
-                    <li><a href="#vtotal" data-toggle="tab" data-target="#vtotal">Capacity Report</a>
+                    <li><a href="#vcontribution" data-toggle="tab" data-target="#vcontribution">Contribution Report</a>
                     </li>
                 </ul>
 
@@ -37,25 +37,22 @@
                         </div>
                     </div>
 
-                    <div class="tab-pane" id="vcongestion">
-                        <div class="col-lg-12 col-md-12">
-                         {% for vehicle in vclass_names %}
-                         <div class="col-lg-6 panel panel-primary">
-                              <div class="panel-body" id="{{ vehicle }}con"></div>
-                         </div>
-                         {% endfor %}
+                    <div class="tab-pane col-lg-12" id="vcongestion">
+                        <div class="col-lg-12 panel panel-primary">
+                              <div class="panel-body" id="congraph"></div>
                         </div>
                     </div>
 
-                    <div class="tab-pane" id="vtotal">
-                        <div class="col-lg-12 col-md-12">
-                         <h3>code for total</h3>
+                    <div class="tab-pane col-lg-12" id="vcontribution">
+                        <div class="col-lg-12 panel panel-primary">
+                              <div class="panel-body center-block" id="contribgraph"></div>
                         </div>
                     </div>
                  </div>
 
              </div>
             </section>
+    </div>
     </div>
 {% endblock %}
 
@@ -64,10 +61,16 @@
     <script>
         {% for chart in vcounts %}
         Highcharts.chart({{ chart|safe }}.xAxis.categories+"count", {{ chart|safe }});
+        console.log({{ chart|safe }});
         {% endfor %}
-        {% for chart in vcons %}
-        Highcharts.chart({{ chart|safe }}.xAxis.categories+"con", {{ chart|safe }});
-        {% endfor %}
+
+        console.log({{ vcon|safe }});
+        Highcharts.chart('congraph', {{ vcon|safe }});
+
+        console.log({{ vcontrib|safe }});
+        Highcharts.chart('contribgraph', {{ vcontrib|safe }});
+
+
 
     </script>
 {% endblock %}
