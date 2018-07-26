@@ -1,6 +1,5 @@
 # TrafficSurveillance
 Minor Project on Vehicle Detection and Congestion Mapping
-Follow the project structure
 
 ---- Note, for the web sockets to function,additional dependencies are required ----
 1. Django Channels v1.0.2
