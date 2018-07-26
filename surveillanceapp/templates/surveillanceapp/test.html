@@ -1,21 +1,29 @@
 {% extends 'surveillanceapp/base.html' %}
 {% load static %}
 
+{% block extraheadjs %}
+    <script src="{% static 'js/highcharts.js' %}"></script>
+{% endblock %}
+
 {% block main-content %}
     <div class="row">
-        <div class="col-lg-2">
+        <div class="col-lg-12">
             <button id="video-play-btn" class="btn btn-primary">Play Video</button>
-            <button id="video-stop-btn" class="btn btn-danger" style="display: none">Stop Video</button>
-        </div>
-        <div id="graph-body" class="col-lg-10">
-            <ul class="list-group" id="list-body">
-
-            </ul>
+            <a href="{% url 'surveillanceapp:stationlist' %}" id="report-btn" class="btn btn-success pull-right" style="display: none">View Report</a>
         </div>
     </div>
-    <div class="row">
-        <div class="col-lg-4 col-lg-push-4">
-            <a href="{% url 'surveillanceapp:stationlist' %}" id="report-btn" class="btn btn-success" style="display: none">View Report</a>
+    <div class="row" style="padding-top: 2%">
+        <div id="graph-body" class="col-lg-12">
+            <div class="col-lg-6" id="number-graph">
+
+            </div>
+            <div class="col-lg-6" id="congestion-graph">
+
+            </div>
+        </div>
+    </div>
+    <div class="row" style="padding-top: 2%">
+        <div id="bargraph" class="col-lg-10 col-lg-push-1">
         </div>
     </div>
 {% endblock %}
@@ -23,10 +31,116 @@
 {% block extrajs %}
     <script>
         var playbtn = document.querySelector('#video-play-btn');
-        var stopbtn = document.querySelector('#video-stop-btn');
         var reportbtn = document.querySelector('#report-btn');
         var listbody = document.querySelector('#list-body');
         var socket = null;
+        var numbergraph;
+        var congestiongraph;
+        var bargraph;
+        var bargraphoptions;
+
+        function cleargraph() {
+            numbergraph = Highcharts.chart('number-graph', {
+                credits:{
+                    enabled: false
+                },
+                title: {
+                    text: 'Total Number of Vehicles per second interval'
+                },
+                plotOptions: {
+                    series: {
+                        pointStart: 1
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: 'Number of Vehicles'
+                    }
+                },
+                xAxis: {
+                    title: {
+                        text: 'Time(seconds)'
+                    }
+                },
+                series: [{
+                    name: 'No.of vehicles',
+                    color: '#296789',
+                    data: []
+                }]
+            });
+
+            congestiongraph = Highcharts.chart('congestion-graph', {
+                credits:{
+                    enabled: false
+                },
+                title: {
+                    text: 'Approx Vehicle Congestion per second interval'
+                },
+                plotOptions: {
+                    series: {
+                        pointStart: 1
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: 'Congestion Index'
+                    }
+                },
+                xAxis: {
+                    title: {
+                        text: 'Time(seconds)'
+                    }
+                },
+                series: [{
+                    name: 'Congestion index',
+                    color: '#7c212c',
+                    data: []
+                }]
+            });
+
+            bargraphoptions = {
+                credits:{
+                    enabled: false
+                },
+                chart: {
+                    type: 'bar'
+                },
+                title: {
+                    text: 'Real-time plot of no. of vehicles in the road by Vehicle Class'
+                },
+                xAxis: {
+                    categories: ['Tempo', 'Bike', 'Car', 'Taxi', 'Micro', 'Pickup', 'Bus', 'Truck'],
+                    title: {
+                        text: null
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    max: 20,
+                    title: {
+                        text: 'No.of vehicles',
+                        align: 'high'
+                    },
+                    labels: {
+                        overflow: 'justify'
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        dataLabels: {
+                            enabled: true
+                        }
+                    }
+                },
+                series: [{
+                    name: 'No.of vehicles',
+                    color: '#1d6c0e',
+                    data: []
+                }]
+            };
+
+            bargraph = Highcharts.chart('bargraph', bargraphoptions);
+        }
 
         function showbtn() {
             reportbtn.style.display = 'inline';
@@ -58,23 +172,25 @@
                     {#showbtn();#}
                 }
                 else {
-                    listelem = document.createElement('li');
-                    listelem.textContent = received['message'];
-                    listbody.appendChild(listelem);
+                    var numbercount = received['numbercount'];
+                    var congcount = received['congcount'];
+                    var vclasscount = received['vclasscount'];
+                    var shift = numbergraph.series[0].data.length > 20;
+                    numbergraph.series[0].addPoint(numbercount, true, shift);
+                    congestiongraph.series[0].addPoint(congcount, true, shift);
+                    bargraphoptions.series[0].data = vclasscount;
+                    bargraph.update(bargraphoptions,true);
                 }
             };
             if(socket.readyState == WebSocket.OPEN){
                 socket.onopen();
             }
+            cleargraph();
+            reportbtn.style.display = 'none';
         });
 
         stopbtn.addEventListener('click',function (ev) {
             socket.close(1000,'Stop button was pressed');
-            {#console.log('Close was called: '+socket.readyState);#}
-            {#if(socket.readyState == WebSocket.CLOSED){#}
-            {#    socket.onclose();#}
-            {##}
-            {#showbtn();#}
         });
 
     </script>

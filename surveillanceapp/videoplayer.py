@@ -154,21 +154,25 @@ class App:
             # Real-time analysis
             if time.time() - self.starttime >= 1.0:
                 print('Framecount since last bunch: {}'.format(self.realtime_framecount))
-                self.timeelapsed = float(np.round(time.time() - self.beginning, 1))
+                self.timeelapsed = math.floor(float(np.round(time.time() - self.beginning, 1)))
                 avg_rtimecount = np.round(analytics.realtime_count / self.realtime_framecount).astype(int)
-                avg_rtimecongestion = np.round(analytics.realtime_congestion / self.realtime_framecount, 3)
+                avg_rtimecongestion = float(np.round(analytics.realtime_congestion / self.realtime_framecount, 3))
                 print('Average realtime congestion in this interval is {}'.format(avg_rtimecongestion))
                 print('Sum of average no.of vehicles in this interval is {}'.format(avg_rtimecount))
-                analytics.numbercount.append(sum(avg_rtimecount))
+                numbercount = int(sum(avg_rtimecount))
+                congcount = avg_rtimecongestion
+                analytics.numbercount.append(numbercount)
                 analytics.congcount.append(avg_rtimecongestion)
                 analytics.xs.append(self.timeelapsed)
-
+                vclasscount = [int(count) for count in avg_rtimecount]
                 # The following code will send data through channels to plot real-time graph
-                graphstr = '(X-AXIS) Time elapsed: {} secs | (Y_AXIS1) Avg no.of vehicles in this interval = {} | (Y_AXIS2) Average congestion = {}'.format(self.timeelapsed,avg_rtimecount,avg_rtimecongestion)
+
                 self.channel.send({
                     'text': json.dumps({
                         'eof': False,
-                        'message': graphstr
+                        'numbercount': numbercount,
+                        'congcount': congcount,
+                        'vclasscount': vclasscount
                     })
                 }, True)
 
@@ -222,7 +226,6 @@ class App:
         self.channel.send({
             'text': json.dumps({
                 'eof': True,
-                'message': None
             })
         }, True)
 
