@@ -14,6 +14,7 @@ Follow the project structure
 ---- Please note the latest version of Django Channels v2.x has significant code and architecture update and hence the code is incompatible with v2.x. Similarly, the other libraries are also compatible only with channels v1.x.
 
 ---- Install in the following order (because automatic dependency fetch from package installers like pip will download the incompatible latest versions:
+
 pip install twisted==16.2
 
 pip install autobahn==0.18
