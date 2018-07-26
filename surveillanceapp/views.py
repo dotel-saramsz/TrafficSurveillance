@@ -84,9 +84,9 @@ def report(request):
     congestion_chart = {
         'chart': {'type': 'column'},
         'title': {'text': 'Congestion Chart'},
-        'xAxis': {'title': {'text': 'Time'}},
+        'xAxis': {'title': {'text': 'Time'},'categories':'Vehicles'},
         'yAxis': {'title': {'text': 'Congestion'}},
-        'series': [{'data':congestiondata}],
+        'series': [{'name':'Congestion Index','data':congestiondata}],
         'credits': 'false'
     }
 
@@ -102,7 +102,7 @@ def report(request):
         'title': {'text': 'Contribution Plot'},
         'xAxis': {'title': {'text': 'Time'}},
         'yAxis': {'title': {'text': 'Congestion'}},
-        'series': [{'data': vcontrib_series}],
+        'series': [{'name':'Average Contribution','data': vcontrib_series}],
         'credits': 'false'
     }
 
