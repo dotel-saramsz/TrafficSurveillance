@@ -1,4 +1,9 @@
 from django.db import models
+import os
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 # class for station
 class Station(models.Model):
@@ -16,18 +21,45 @@ class Station(models.Model):
 ## surveillance video class
 ## this class has many to one relation with Station class
 class SurveillanceVideo(models.Model):
-    surveillance_id=models.AutoField(primary_key=True)
-    surveillancevideo_name=models.CharField(max_length=25)  #surveillance video name
-    timestamp=models.DateTimeField(auto_now_add=True)
+
+
+    video_id=models.AutoField(primary_key=True)
+    timestamp = models.DateTimeField()  # we will be manually adding videos of different days so don't add autonow
+    station = models.ForeignKey(Station, on_delete=models.CASCADE)
+
+    ##set custom filename
+    def file_path(self,filename):
+
+        extension=(os.path.splitext(filename))[1]
+        filename=str(self.video_id)+'_'+str(self.timestamp.date())+'_'+str(self.station) ##get the file extension
+        return os.path.join(BASE_DIR,'media/surveillance_videos/',filename)+extension
+
+
+    video_file=models.FileField(upload_to=file_path,max_length=250)#$"surveillance_videos/")
     report=models.BooleanField(default=False)
-    lane_dimen1=models.FloatField()
-    lane_dimen2=models.FloatField()
-    lane_dimen3=models.FloatField()
-    lane_dimen4=models.FloatField()
-    station=models.ForeignKey(Station,on_delete=models.CASCADE)
+    lane_dimens=models.CharField(max_length=50)
+
 
     def __str__(self):
-        return self.surveillancevideo_name
+        return str(self.video_id)
+
+    ##clean data
+    def clean(self,*args,**kwargs):
+        data=super(SurveillanceVideo,self).clean(*args,**kwargs)
+        return data
+
+    def storeDimens(self):
+        pass
+
+    ## store as a list
+    def parseDimens(self):
+        pass
+
+    ## parse list and retrive dimensions
+    def setThumbnail(self):
+        pass
+
+        ## try to retrive first frame from surveillancevideo
 
     def getSurveillanceImage(self):
         pass
