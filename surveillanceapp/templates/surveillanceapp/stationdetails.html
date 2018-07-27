@@ -1,6 +1,12 @@
 {% extends 'surveillanceapp/base.html' %}
 {% load static %}
 
+{% block extracss %}
+    <style>
+
+    </style>
+{% endblock %}
+
 {%  block main-content %}
 
     <!--station detail start -->
@@ -14,81 +20,108 @@
             </ol>
         </div>
     </div>
-    <div class="row">
+
+    <div class="col-lg-12">
         <!-- station map starts here -->
-        <div class="col-md-8" id="station-map" style="width:70%;height:500px;">
-
-        </div>
+        <div id="station-map" style="width:auto;height:150px;"></div>
         <!-- station map ends here -->
-
-
-        <div class="col-md-3" style="margin-left: 5px;">
-            <!--station info here -->
-            <div class="row">
-            <div class="info-box blue-bg" style="margin-bottom: 5px;">
-
-              <div>{{ station.station_name }}</div><br>
-              <div class="fa fa-location-arrow">Lat: {{ station.lat_pos }}</div><br>
-              <div class="fa fa-location-arrow">Lng: {{ station.lon_pos}}</div>
-
-             </div>
-            </div>
-            <!-- station info ends here -->
-
-            <!-- station report starts here -->
-            <div class="row" >
-               <div class="info-box blue-bg" style="height:30px; margin-bottom: 5px;">
-                    <i class="fa fa-signal"></i>
-                     <div style="font-size: medium;">Statistics Report</div>
-                </div>
-            </div>
-            <!-- station report ends here -->
-
-            <!-- station photo here -->
-            <div class="row">
-
-                <img class="img-responsive" src="{% static station.station_pic.url %}"
-                     alt="{{ station.station_name }}" style="width:auto; height:200px;">
-            </div>
-            <!-- station photo ends here -->
-
-        </div>
-
     </div>
 
-    <!--station detail ends here -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading"><i class="fa fa-taxi"></i> Station Details</div>
+                    <div class="panel-body">
+                        <div class="col-lg-7">
+                            <div class="panel-body bio-graph-info">
+                                <h1><strong>Station Details</strong></h1>
+                              <div class="bio-row">
+                                <p><span>Station ID </span>: {{ station.station_id }} </p>
+                              </div>
+                              <div class="bio-row">
+                                <p><span>Station Name </span>: {{ station.station_name }} </p>
+                              </div>
+                              <div class="bio-row">
+                                <p><span>Latitude</span>: {{ station.lat_pos }}</p>
+                              </div>
+                              <div class="bio-row">
+                                <p><span>Longitude</span>: {{ station.lon_pos }}</p>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <img class="img-responsive center-block" src="{% static station.station_pic.url %}" alt="{{ station.station_name }}" style="height: 150px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- surveillance video list starts here -->
+    <div class="row">
+        <div class="col-lg-12 col-md-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h2><i class="fa fa-list"></i><strong>Surveillance Videos</strong></h2>
+              </div>
+              <div class="panel-body">
+                 <div class="col-lg-12">
+                 <div class="col-lg-3 pull-left"><i class="fa fa-camera"> </i> count Videos</div>
+                 <div class="col-lg-3 pull-right"><i class="fa"> </i> count Analysed</div>
+                 <hr>
+                 </div>
+                  <div class="col-lg-12">
+                <div class="act-time">
+                <div class="activity-body act-in">
+                <span class="arrow"></span>
+                <div class="text">
+                    <div class="col-lg-3">
+                        <img class="img-responsive center-block" src="{% static station.station_pic.url %}" alt="{{ station.station_name }}" style="height: 150px;">
+                    </div>
+                    <div class="col-lg-3 attribution">Video Information</div>
+                    <div class="col-lg-3 attribution">Statistical reports</div>
+                    <div class="col-lg-3">Actions</div>
+                </div>
+                </div>
+                </div>
+                  </div>
+
+              </div>
+            </div>
+        </div>
+    <!-- surveillance video list ends here -->
+    </div>
+
 {% endblock %}
 
 {% block extrajs %}
     <!-- map script-->
     <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBAUsak2E8DcVtc3hUtrg06-pPHER8LXdk&callback=initMap">
-
     </script>
-
-
     <script>
-
         //initialize map
         var map;
         function initMap() {
             //get station coordinates in js object
             var coords = {
-                lat: {{station.lat_pos }},
-                lng:{{station.lon_pos }}
+                lat: {{ station.lat_pos }},
+                lng:{{ station.lon_pos }}
             };
-
             map = new google.maps.Map(
                 document.getElementById('station-map'),
-                {zoom: 12, center: coords}
+                {   zoom: 17,
+                    center: coords,
+                    zoomControl:false,
+                    scaleControl:false,
+                    panControl:false}
                 );
-
             var iw=new google.maps.InfoWindow();  //initialize info window
-            console.log("I am okay here");
 
-            var marker = new google.maps.Marker({position: coords, map: map}); //show the marker in map
 
-            //marker onclick event handler
+            var marker = new google.maps.Marker({ position: coords, map: map }); //show the marker in map
+         //marker onclick event handler
             marker.addListener('click',function(){
                 iw.setContent('{{ station.station_name }}');
                 iw.open(map, marker);

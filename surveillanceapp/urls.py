@@ -9,4 +9,6 @@ urlpatterns=[
     path('stations/<int:pk>',views.StationDetailView.as_view(),name='stationdetails'),
     path('test/',views.test,name='test'),
     path('test/ajax/playvideo',views.cv_playvideo,name='cv_playvideo'),
+    path('stations/addnewstation/',views.addNewStation,name='stationcreate'),
+    path('report', views.report, name='report'),
 ]

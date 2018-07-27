@@ -1,4 +1,8 @@
 from django.db import models
+import os
+
+# Check below by replacing with BASE_DIR from settings
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # class for station
 class Station(models.Model):
@@ -11,41 +15,61 @@ class Station(models.Model):
     def __str__(self):
         return self.station_name
 
-## surveillance video class
-## this class has many to one relation with Station class
+
+## surveillance video class, this class has many to one relation with Station class
 class SurveillanceVideo(models.Model):
-    surveillance_id=models.AutoField(primary_key=True)
-    surveillancevideo_name=models.CharField(max_length=25)  #surveillance video name
-    timestamp=models.DateTimeField()
+
+
+    video_id=models.AutoField(primary_key=True)
+    timestamp = models.DateTimeField()  # we will be manually adding videos of different days so don't add autonow
+    station = models.ForeignKey(Station, on_delete=models.CASCADE)
+
+    ##set custom filename
+    def file_path(self,filename):
+
+        extension=(os.path.splitext(filename))[1]
+        filename=str(self.video_id)+'_'+str(self.timestamp.date())+'_'+str(self.station) ##get the file extension
+        return os.path.join(BASE_DIR,'media/surveillance_videos/',filename)+extension
+
+
+    video_file=models.FileField(upload_to=file_path,max_length=250)#$"surveillance_videos/")
     report=models.BooleanField(default=False)
-    lane_dimen1=models.FloatField()
-    lane_dimen2=models.FloatField()
-    lane_dimen3=models.FloatField()
-    lane_dimen4=models.FloatField()
-    station=models.ForeignKey(Station,on_delete=models.CASCADE)
+    lane_dimens=models.CharField(max_length=50)
+
 
     def __str__(self):
-        return self.surveillancevideo_name
+        return str(self.video_id)
+
+    ##clean data
+    def clean(self,*args,**kwargs):
+        data=super(SurveillanceVideo,self).clean(*args,**kwargs)
+        return data
+
+    ## store as a list
+    def storeDimens(self):
+        pass
+
+    ## parse list and retrive dimensions
+    def parseDimens(self):
+        pass
+
+    ## try to retrieve first frame from surveillancevideo
+    def setThumbnail(self):
+        pass
 
     def getSurveillanceImage(self):
         pass
 
-##Surveillance Report Class
-####has one to one relation with Surveillance Video class
+
+##Surveillance Report Class has one to one relation with Surveillance Video class
 class SurveillanceReport(models.Model):
     report_id=models.AutoField(primary_key=True)
     video=models.OneToOneField(SurveillanceVideo, on_delete=models.CASCADE)
     avg_capacity_index=models.FloatField()
     avg_count_index=models.FloatField()
-    json_data=models.FileField()
-    bike_count_list=models.CharField(max_length=5)
-    car_count_list=models.CharField(max_length=5)
-    taxi_count_list=models.CharField(max_length=5)
-    pickup_count_list=models.CharField(max_length=5)
-    micro_count_list=models.CharField(max_length=5)
-    bus_count_list=models.CharField(max_length=5)
-    truck_count_list=models.CharField(max_length=5)
-    tempo_count_list=models.CharField(max_length=5)
+    congestion_data=models.FileField()
+    count_data=models.FileField()
+    contribution_data=models.FileField()
 
     def __str__(self):
         return self.report_id

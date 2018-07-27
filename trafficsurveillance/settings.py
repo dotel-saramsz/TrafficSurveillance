@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',
     'surveillanceapp.apps.SurveillanceappConfig',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -127,7 +128,7 @@ STATICFILES_DIRS = [
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
-MEIDA_URL = '/media/'
+MEDIA_URL = '/media/'
 
 CHANNEL_LAYERS = {
     'default': {

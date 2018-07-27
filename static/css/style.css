@@ -1802,11 +1802,19 @@ div[data-role="editor-toolbar"] {
 
 .info-box {
 
+<<<<<<< HEAD
   min-height: 140px;
 
   margin-bottom: 30px;
 
   padding: 20px;
+=======
+  min-height: auto;
+
+  margin-bottom: 30px;
+
+  padding: 10px;
+>>>>>>> remotemaster
 
   color: white;
 
