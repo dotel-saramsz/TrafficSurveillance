@@ -26,15 +26,15 @@
         <div id="station-map" style="width:auto;height:150px;"></div>
         <!-- station map ends here -->
     </div>
-
+    <!-- station detail starts here -->
     <div class="row">
     <div class="col-lg-12">
-        <div class="panel panel-default">
+        <div class="panel panel-primary">
         <div class="panel-heading"><i class="fa fa-taxi"></i> Station Details</div>
         <div class="panel-body">
         <div class="col-lg-7">
             <div class="panel-body bio-graph-info">
-                <h1><strong>Station Details</strong></h1>
+
               <div class="bio-row">
                 <p><span>Station ID </span>: {{ station.station_id }} </p>
               </div>
@@ -49,6 +49,7 @@
               </div>
             </div>
         </div>
+            <!-- station pic here -->
         <div class="col-lg-5">
             <img class="img-responsive center-block" src="{% static station.station_pic.url %}" alt="{{ station.station_name }}" style="height: 150px;">
         </div>
@@ -56,6 +57,8 @@
         </div>
     </div>
     </div>
+
+    <!-- station detail ends here -->
 
     <!-- surveillance video list starts here -->
     <div class="row">
@@ -65,32 +68,67 @@
                 <h2><i class="fa fa-list"></i><strong>Surveillance Videos</strong></h2>
               </div>
               <div class="panel-body">
-                 <div class="col-lg-12">
-                 <div class="col-lg-3 pull-left"><i class="fa fa-camera"> </i> count Videos</div>
-                 <div class="col-lg-3 pull-right"><i class="fa"> </i> count Analysed</div>
+                 <div>
+                 <div class="pull-left"><i class="fa fa-camera"> </i> count Videos</div>
+                 <!--
+                     <div class="col-lg-3 pull-right"><i class="fa"> </i> count Analysed</div>
+                   -->
                  <hr>
                  </div>
-                  <div class="col-lg-12">
-                <div class="act-time">
-                <div class="activity-body act-in">
-                <span class="arrow"></span>
-                <div class="text">
-                    <div class="col-lg-3">
-                        <img class="img-responsive center-block" src="{% static station.station_pic.url %}" alt="{{ station.station_name }}" style="height: 150px;">
-                    </div>
-                    <div class="col-lg-3 attribution">Video Information</div>
-                    <div class="col-lg-3 attribution">Statistical reports</div>
-                    <div class="col-lg-3">Actions</div>
-                </div>
-                </div>
-                </div>
-                  </div>
+
+
+                 <table class="table">
+                     <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>TimeStamp</th>
+                            <th>Station</th>
+                            <th>Report</th>
+                            <th>Statistical Report</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                     <tbody>
+                     {%  for v in video %}
+                     <tr>
+                         <td>
+                             <!--video thumbinal here-->
+                         </td>
+                         <td>
+                             <!-- video timestamp here -->
+                            {{ v.timestamp }}
+                         </td>
+                         <td>
+                             <!--station name here -->
+                             {{ station.station_name }}
+                         </td>
+                         <td>
+                             <!--report generated boolean field here-->
+                             {% if v.report == False%}
+                                <i class="fa fa-times"></i>
+                             {% else %}
+                                 <i class="fa fa-check green"></i>
+                             {% endif %}
+                         </td>
+                         <td>
+                             <!--statistical report overview here -->
+                         </td>
+                         <td>
+                             <!--actions here : delete, edit -->
+                             <i class="fa fa-trash-o"></i>
+                         </td>
+                     </tr>
+                     {% endfor %}
+
+                     </tbody>
+                 </table>
 
               </div>
             </div>
+        </div>
     </div>
     <!-- surveillance video list ends here -->
-    </div>
+
 {% endblock %}
 
 {% block extrajs %}

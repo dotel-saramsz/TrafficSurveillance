@@ -35,7 +35,7 @@ class SurveillanceVideo(models.Model):
         return os.path.join(BASE_DIR,'media/surveillance_videos/',filename)+extension
 
 
-    video_file=models.FileField(upload_to=file_path,max_length=250)#$"surveillance_videos/")
+    video_file=models.FileField(upload_to=file_path,max_length=250)
     report=models.BooleanField(default=False)
     lane_dimens=models.CharField(max_length=50)
 

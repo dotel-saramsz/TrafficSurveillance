@@ -1,5 +1,5 @@
 from django.shortcuts import render, Http404
-from .models import Station
+from .models import *
 from .forms import *
 from django.shortcuts import redirect
 from django.views.generic import ListView,DetailView
@@ -33,13 +33,6 @@ def addNewStation(request):
     return render(request,'surveillanceapp/addnewstation.html',{'form':form})
 
 
-###for new station form
-#class StationCreate(CreateView):
- #   model=Station
-  #  fields=['station_name','lat_pos','lon_pos','station_pic']
-   # template_name='surveillanceapp/addnewstation.html'
-
-
 class StationListView(ListView):
 
     model = Station
@@ -52,18 +45,16 @@ class StationListView(ListView):
 
 
 class StationDetailView(DetailView):
-    pass
-    #model = Station
-    #template_name = 'surveillanceapp/stationdetails.html'
-    #
-    # def station_detail_view(request,pk):
-    #     try:
-    #         station=Station.objects.get(pk=pk)
-    #     except Station.DoesNotExist:
-    #         raise Http404("Station does not exist")
-    #
-       # return render(request,'surveillanceapp/stationdetails.html')
 
+    model = Station
+    template_name = 'surveillanceapp/stationdetails.html'
+
+    def get_context_data(self,*args,**kwargs):
+
+        context=super(StationDetailView, self).get_context_data(*args,**kwargs)
+        context['video']=SurveillanceVideo.objects.filter(station_id=self.kwargs['pk'])
+
+        return context
 
 def test(request):
     return render(request,'surveillanceapp/test.html')
