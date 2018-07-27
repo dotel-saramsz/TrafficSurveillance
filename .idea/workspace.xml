@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4b170448-bddc-4512-a5e5-46db14843791" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/surveillanceapp/templates/surveillanceapp/stationlist.html" afterPath="$PROJECT_DIR$/surveillanceapp/templates/surveillanceapp/stationlist.html" />
-    </list>
+    <list default="true" id="4b170448-bddc-4512-a5e5-46db14843791" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -44,7 +42,7 @@
         <entry file="file://$PROJECT_DIR$/surveillanceapp/videoplayer.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-600">
-              <caret line="174" column="50" lean-forward="true" selection-start-line="174" selection-start-column="50" selection-end-line="174" selection-end-column="50" />
+              <caret line="174" column="50" lean-forward="false" selection-start-line="174" selection-start-column="50" selection-end-line="174" selection-end-column="50" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
                 <element signature="e#2752#3021#0" expanded="false" />
@@ -82,7 +80,7 @@
         <entry file="file://$PROJECT_DIR$/surveillanceapp/templates/surveillanceapp/stationlist.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="684">
-              <caret line="38" column="0" lean-forward="true" selection-start-line="38" selection-start-column="0" selection-end-line="38" selection-end-column="0" />
+              <caret line="38" column="0" lean-forward="false" selection-start-line="38" selection-start-column="0" selection-end-line="38" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -149,7 +147,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="284" />
     <option name="y" value="24" />
     <option name="width" value="1400" />
@@ -279,7 +277,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="284" y="24" width="1873" height="1092" extended-state="7" />
+    <frame x="284" y="24" width="1873" height="1092" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
@@ -695,7 +693,7 @@
     <entry file="file://$PROJECT_DIR$/surveillanceapp/templates/surveillanceapp/stationlist.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="684">
-          <caret line="38" column="0" lean-forward="true" selection-start-line="38" selection-start-column="0" selection-end-line="38" selection-end-column="0" />
+          <caret line="38" column="0" lean-forward="false" selection-start-line="38" selection-start-column="0" selection-end-line="38" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -703,7 +701,7 @@
     <entry file="file://$PROJECT_DIR$/surveillanceapp/videoplayer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-600">
-          <caret line="174" column="50" lean-forward="true" selection-start-line="174" selection-start-column="50" selection-end-line="174" selection-end-column="50" />
+          <caret line="174" column="50" lean-forward="false" selection-start-line="174" selection-start-column="50" selection-end-line="174" selection-end-column="50" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
             <element signature="e#2752#3021#0" expanded="false" />
