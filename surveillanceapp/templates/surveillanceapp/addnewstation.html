@@ -1,5 +1,5 @@
 {% extends 'surveillanceapp/base.html' %}
-
+{% load static %}
 {% load widget_tweaks %}
 
 {% block extracss %}
@@ -18,13 +18,8 @@
             box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
             color:white;
             }
-
-
     </style>
-
 {% endblock %}
-
-
 
 
 {% block main-content %}
@@ -43,7 +38,7 @@
 
         <!--add new station form starts here -->
             <div class="col-lg-4">
-                <form class="form-horizontal" action="" method="POST" enctype="multipart/form-data">
+                <form class="form-horizontal" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}  <!--cross site request forgery -->
 
                         <div class="form-group">
@@ -51,23 +46,20 @@
                             <label class="control-label col-sm-6">{{ form.station_name.label_tag }}</label>
                             <input class="form-control" name="station_name" placeholder="Enter your name">
                         </div>
-
                         <div class="form-group">
                             <span class="text-danger small">{{ form.lat_pos.errors }}</span>
                             <label class="control-label col-sm-6">{{ form.lat_pos.label_tag }}</label>
                             <input class="form-control" id="lat_pos" name="lat_pos" placeholder="Drag the marker">
                         </div>
                         <div class="form-group">
-
                             <span class="text-danger small">{{ form.lon_pos.errors }}</span>
-
                             <label class="control-label col-sm-6">{{ form.lon_pos.label_tag }}</label>
                             <input class="form-control" name="lon_pos" id="lon_pos" placeholder="Drag the marker">
                         </div>
                         <div class="form-group">
                             <label class="control-label col-sm-6">{{ form.station_pic.label_tag }}</label>
+                            <img src="" class="profilepicture" width="100%">
                             {% render_field form.station_pic class="form-control" %}
-
                         </div>
                         <div class="form-group">
                                 <button type="submit" class="btn btn-success">Submit</button>
@@ -101,45 +93,41 @@
 {% block extrajs %}
     <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBAUsak2E8DcVtc3hUtrg06-pPHER8LXdk&callback=initMap">
-
     </script>
+    <script src="{% static 'js/imagePreviewer.js' %}"></script>
     <script>
-    function initMap(){
-        var loc = {lat: 27.7172, lng: 85.3240};
-        //set map properties
-        var myOptions={
-            zoom:15,
-            center:loc,
-            panControl:true,
-            zoomControl:true,
-            scaleControl:true
+        function initMap(){
+            var loc = {lat: 27.7172, lng: 85.3240};
+            //set map properties
+            var myOptions={
+                zoom:15,
+                center:loc,
+                panControl:true,
+                zoomControl:true,
+                scaleControl:true
+            };
+
+            //render map
+            var map = new google.maps.Map(document.getElementById('station-map'), myOptions);
+
+            var marker=new google.maps.Marker({
+                map:map,
+                position:loc,
+                draggable:true
+            });
+
+            marker.addListener('dragend',function(){
+                //get the current position where the pointer was dropped
+                var point=marker.getPosition();
+
+                //center the map at given point
+                map.panTo(point);
+
+                console.log(point.lat()+''+point.lng());  //print the pointer location in console
+                document.getElementById('lat_pos').setAttribute("value",point.lat());
+                document.getElementById('lon_pos').setAttribute("value",point.lng());
+            });
         }
-
-        //render map
-        var map = new google.maps.Map(document.getElementById('station-map'), myOptions);
-
-         var marker=new google.maps.Marker({
-            map:map,
-            position:loc,
-            draggable:true
-
-
-        });
-
-        marker.addListener('dragend',function(){
-            //get the current position where the pointer was dropped
-            var point=marker.getPosition();
-
-            //center the map at given point
-            map.panTo(point);
-
-            console.log(point.lat()+''+point.lng());  //print the pointer location in console
-            document.getElementById('lat_pos').setAttribute("value",point.lat());
-            document.getElementById('lon_pos').setAttribute("value",point.lng());
-        });
-
-
-    }
     </script>
 
 

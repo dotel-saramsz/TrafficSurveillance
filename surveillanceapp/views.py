@@ -1,11 +1,13 @@
-from django.shortcuts import render, Http404, HttpResponse
-from .models import Station
+from django.shortcuts import render, redirect, Http404, HttpResponse
+from .models import *
 from django.views.generic import ListView,DetailView
+from .forms import *
 from . import cvrender
 import cv2
 import multiprocessing
 import json
 import numpy as np
+
 
 def index(request):
     title = "Dashboard"
@@ -16,55 +18,45 @@ def index(request):
         'stations':stations_data,
         'stationCount':querySetLength
     }
-
     return render(request,'surveillanceapp/index.html',context)
 
-class StationListView(ListView):
 
-    model = Station
-    title="Station List"
-    template_name = 'surveillanceapp/stationlist.html'
-    context={
-        'title':title
-    }
+def addNewStation(request):
+    if request.method == 'POST':
+        received = request.POST.copy()
+        print(received)
+        form = StationForm(request.POST, request.FILES)
+        if form.is_valid():
+            station = form.save(commit=False)
+            print(station.station_pic.url)
+            station.save()
+            return redirect('surveillanceapp:stationdetails', pk=station.station_id)
+    else:
+        form = StationForm()
+
+    return render(request, 'surveillanceapp/addnewstation.html', {'form': form})
+
+
+def list_stations(request):
+    try:
+        station_list = Station.objects.all()
+    except Station.DoesNotExist:
+        raise Http404
+    return render(request, 'surveillanceapp/stationlist.html', {'title': 'Station List', 'station_list': station_list})
 
 
 class StationDetailView(DetailView):
-    pass
-    # model = Station
-    # template_name = 'surveillanceapp/stationdetails.html'
-    #
-    # def station_detail_view(request,pk):
-    #     try:
-    #         station=Station.objects.get(pk=pk)
-    #     except Station.DoesNotExist:
-    #         raise Http404("Station does not exist")
-    #
-    # return render(request,'surveillanceapp/stationdetails.html')
+    model = Station
+    template_name = 'surveillanceapp/stationdetails.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(StationDetailView, self).get_context_data(*args, **kwargs)
+        context['video'] = SurveillanceVideo.objects.filter(station_id=self.kwargs['pk'])
+        return context
 
 
 def test(request):
-    # print('New Process creating')
-    # videoplayer = multiprocessing.Process(name='videoplayer',target=cvrender.playvideo)
-    # videoplayer.start()
-    # videoplayer.join()
     return render(request,'surveillanceapp/test.html')
-
-def cv_playvideo(request):
-    print('New Process creating')
-    queue = multiprocessing.Queue()
-    dataevent = multiprocessing.Event()
-    endevent = multiprocessing.Event()
-    videoplayer = multiprocessing.Process(name='videoplayer', target=cvrender.playvideo, args=(queue,dataevent,endevent))
-    videoplayer.start()
-    # while not endevent.is_set():
-    #     print('----')
-    #     dataevent.wait(1)
-    #     result = queue.get()
-    #     print(result)
-    # print('Ended')
-    videoplayer.join()
-    return HttpResponse('The video finished playing')
 
 
 def report(request):

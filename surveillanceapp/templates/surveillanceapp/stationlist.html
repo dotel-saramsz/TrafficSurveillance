@@ -6,7 +6,16 @@
 
     <style>
         .station-clickable:hover{
-            background:lightgrey;
+            background: #dddddd;
+        }
+
+        .station-clickable{
+            cursor: pointer;
+        }
+
+        .station-heading{
+            background: #546d7d;
+            color: #ffffff;
         }
 
         #add-station{
@@ -30,96 +39,56 @@
         </div>
     </div>
 
-    <!-- pagination here -->
+    <!-- add button here -->
     <div class="row">
-    <div class="col-lg-9">
-        {% if is_paginated %}
-            <ul class="pagination">
-        {% if page_obj.has_previous %}
-          <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
-        {% else %}
-          <li class="disabled"><span>&laquo;</span></li>
-        {% endif %}
-        {% for i in paginator.page_range %}
-          {% if page_obj.number == i %}
-            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-          {% else %}
-            <li><a href="?page={{ i }}">{{ i }}</a></li>
-          {% endif %}
-        {% endfor %}
-        {% if page_obj.has_next %}
-          <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
-        {% else %}
-          <li class="disabled"><span>&raquo;</span></li>
-        {% endif %}
-            </ul>
-        {% endif %}
+        <div class="col-lg-3 col-lg-push-9">
+            <a href="{% url 'surveillanceapp:stationcreate' %}">
+                <button class="btn pull-right bg-primary" id="add-station">
+                    <span class="fa fa-edit"> Add New Station</span>
+                </button>
+            </a>
+        </div>
     </div>
-    <div class="col-lg-3 pull-right">
-        <a href="{% url 'surveillanceapp:stationcreate' %}">
-    <button class="btn pull-right bg-primary" id="add-station">
-            <span class="fa fa-edit"> Add New Station</span>
-    </button>
-    </a></div>
-    </div>
-    <!-- end of pagination -->
+    <!-- end of add button -->
     <div class="row">
-
-    <div class="col-lg-12 col-md-12">
-
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h2><i class="fa fa-list"></i><strong>Station List</strong></h2>
-          </div>
-          <div class="panel-body">
-            <!--table starts here-->
-            <table class="table bootstrap-datatable countries">
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Station Name</th>
-                    <th>Station ID</th>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
-                    <th>Analysis Progress</th>
-                    <th>Actions</th>
-                </tr>
-              </thead>
-
-            <!-- table station listing starts here -->
-            {% for station in object_list %}
-             <tbody>
-                <tr class="station-clickable" data-href="{% url 'surveillanceapp:stationdetails' pk=station.pk %}">
-                    <td><img src="{% static station.station_pic.url %}" style="height:50px; margin-top:-2px;" class="center-block"></td>
-                    <td><strong>{{ station.station_name}}</strong></td>
-                    <td>{{ station.station_id}}</td>
-                    <td>{{ station.lat_pos}}</td>
-                    <td>{{ station.lon_pos}}</td>
-                    <td>
-                    <div class="progress thin" style="margin: 2%;">
-                        <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="73" aria-valuemin="0" aria-valuemax="100" style="width: 75%">
+        {% for station in station_list %}
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading station-heading">
+                        <h2><i class="fa fa-map-marker"></i>    Station {{ station.station_id }}</h2>
+                    </div>
+                    <div class="panel-body station-clickable" data-href="{% url 'surveillanceapp:stationdetails' station.pk %}">
+                        <div class="col-lg-6">
+                            <img src="{% static station.station_pic.url %}" style="width: 100%;" class="center-block">
                         </div>
-                        <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="27" aria-valuemin="0" aria-valuemax="100" style="width: 25%">
+                        <div class="col-lg-6">
+                            <ul class="list-group">
+                                <li class="list-group-item" >
+                                    Station Name:
+                                    <p class="lead"><strong>{{ station.station_name }}</strong></p>
+                                </li>
+                                <li class="list-group-item" >
+                                    Total Surveillance Videos:
+                                    <p class="lead"><strong>{{ station.surveillance_videos.count }}</strong></p>
+                                </li>
+                                <li class="list-group-item" >
+                                    Analytics Progress:
+                                    <div class="progress thin" style="margin: 2%;">
+                                        <div class="progress-bar" role="progressbar" aria-valuenow="73" aria-valuemin="0" aria-valuemax="100" style="width: 75%; background: #d8ab5a;">
+                                        </div>
+                                        <div class="progress-bar" role="progressbar" aria-valuenow="27" aria-valuemin="0" aria-valuemax="100" style="width: 25%; background: #394a59;">
+                                        </div>
+                                    </div>
+                                    <span class="sr-only">73%</span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
-                    <span class="sr-only">73%</span>
-                    </td>
-                    <td><button class="btn btn-primary fa fa-trash-o"> </button></td>
-                </tr>
+                </div>
+            </div>
+        {% endfor %}
 
-
-             </tbody>
-                <!-- table station listing ends here -->
-
-            {% endfor %}
-            </table>
-            <!-- table ends here -->
-        </div>
-        </div>
     </div>
-    </div>
-
-
 
 {% endblock %}
 <!-- main content block ends here -->
@@ -127,14 +96,13 @@
 <!-- extra script block starts here -->
 {% block extrajs %}
     <script>
-
         //making table row clickable
-
-
-            $(".station-clickable").click(function () {
-                window.location=$(this).data('href');
-            });
-
+        stations = document.querySelectorAll('.station-clickable');
+        stations.forEach(function (station) {
+            station.addEventListener('click',function () {
+                window.location.href = this.getAttribute('data-href');
+            })
+        })
     </script>
 {% endblock %}
 

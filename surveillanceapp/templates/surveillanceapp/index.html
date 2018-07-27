@@ -11,6 +11,12 @@
     #station-panel{
         display: none;   /* hide station-panel in the beginning */
     }
+    #station-info-clickable{
+        cursor: pointer;
+    }
+    #station-info-clickable:hover{
+        background: #dddddd;
+    }
 
     </style>
 
@@ -53,36 +59,39 @@
     <!-- MAP and Station Detail starts -->
     <div class="row">
         <div class="col-lg-8 col-md-12">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h2><i class="fa fa-map-marker red"></i><strong>Stations Map</strong></h2>
-            <div class="panel-actions">
-              <a href="{% url 'surveillanceapp:index' %}" class="btn-setting"><i class="fa fa-refresh"></i></a>
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h2><i class="fa fa-map-marker red"></i><strong>Stations Map</strong></h2>
+                <div class="panel-actions">
+                  <a href="{% url 'surveillanceapp:index' %}" class="btn-setting"><i class="fa fa-refresh"></i></a>
+                </div>
+              </div>
+              <div class="panel-body-map">
+                <div id="map" style="height: 550px;width: 100%"></div>
+              </div>
             </div>
-          </div>
-          <div class="panel-body-map">
-            <div id="map" style="height: 550px;width: 100%"></div>
-          </div>
         </div>
-      </div>
      <!-- MAP ENDS HERE -->
         <div class="col-lg-4">
-        <div class="panel panel-default" id="station-panel">
-            <div class="panel-heading">
-                <h2><i class="fa fa-info-circle"></i><strong>Station Info</strong></h2>
-                <div class="panel-actions"><i class="fa fa-times" id="close-station-info"></i></div>
+            <div class="panel panel-default" id="station-panel">
+                <div class="panel-heading">
+                    <h2><i class="fa fa-info-circle"></i><strong>Station Info</strong></h2>
+                    <div class="panel-actions"><i class="fa fa-times" id="close-station-info"></i></div>
+                </div>
+                <div class="panel-body">
+                    <div id="station-info-clickable">
+                        <img src="" id="station-pic" width="100%">
+                        <ul class="list-group col-lg-6">
+                            <li class="list-group-item" >Station Id <p class="lead" id="station-id"></p></li>
+                            <li class="list-group-item" >Station Name <p class="lead" id="station-name"></p></li>
+                        </ul>
+                        <ul class="list-group col-lg-6">
+                            <li class="list-group-item" >Latitude Position <p class="lead" id="lat-pos"></p></li>
+                            <li class="list-group-item" >Longitude Position <p class="lead" id="lon-pos"></p></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="panel-body">
-                <a id="station-info-clickable">
-                <ul class="list-group">
-                    <li class="list-group-item" >Station Id <p class="lead" id="station-id"></p></li>
-                    <li class="list-group-item" >Station Name <p class="lead" id="station-name"></p></li>
-                    <li class="list-group-item" >Latitude Position <p class="lead" id="lat-pos"></p></li>
-                    <li class="list-group-item" >Longitude Position <p class="lead" id="lon-pos"></p></li>
-                </ul>
-                </a>
-              </div>
-        </div>
         </div>
     <!-- Station Detail ENDS HERE -->
     </div>
@@ -97,67 +106,64 @@
     <!-- MAP SCRIPT HERE-->
     <script>
         var map;
+        var stationpanel = document.querySelector('#station-info-clickable');
         function initMap() {
             var loc = {lat: 27.7172, lng: 85.3240};
             map = new google.maps.Map(
                 document.getElementById('map'), {zoom: 12, center: loc});
 
+            {##}
+            {#var coords = {};  //creating an object#}
 
-            var coords = {};  //creating an object
             {% for station in stations %}
-                coords[{{ station.station_id }}] = {   //array of object
-                    id:{{station.station_id }},
-                    name: "{{ station.station_name }}",
-                    lat:{{ station.lat_pos }},
-                    lng:{{ station.lon_pos }}
-
-                };
-
-                console.log(coords[{{ station.station_id }}].lat);
-            {% endfor %}
-            var i;
-            for (i = 1; i <= Object.keys(coords).length; i++) {
+                {#coords[{{ station.station_id }}] = {   //array of object#}
+                {#    id:{{station.station_id }},#}
+                {#    name: "{{ station.station_name }}",#}
+                {#    lat:{{ station.lat_pos }},#}
+                {#    lng:{{ station.lon_pos }}#}
+                {##}
 
                 var iw = new google.maps.InfoWindow();  //creating infowindow object
 
                 //initialize the map with markers
 
-                var loc = {lat: coords[i].lat, lng: coords[i].lng};
-
+                var loc = {lat: {{ station.lat_pos }}, lng: {{ station.lon_pos }} };
 
                 var marker = new google.maps.Marker({position: loc, map: map});
                 //add event listener
 
-                console.log(coords[i].name + '' + coords[i].lat + '');
+                console.log("{{ station.station_name }}" + '' + {{ station.lat_pos }} + '');
 
                 //add event listener using callback function
-                google.maps.event.addListener(marker,'click',(function(marker,i) {
-                    return function () {
-                        document.getElementById("station-id").innerHTML=coords[i].id;
-                        document.getElementById("station-name").innerHTML=coords[i].name;
-                        document.getElementById("lat-pos").innerHTML=coords[i].lat;
-                        document.getElementById("lon-pos").innerHTML=coords[i].lng;
-                        document.getElementById('station-panel').style.display='block';
-                        document.getElementById('station-info-clickable').addEventListener('click',function(){
-                           //add event listener to redirect to station detail page
-                        });
+                google.maps.event.addListener(marker,'click',(function(marker) {
+                        return function () {
+                            document.getElementById("station-id").innerHTML = {{ station.station_id }};
+                            document.getElementById("station-name").innerHTML = "{{ station.station_name }}";
+                            document.getElementById("lat-pos").innerHTML = {{ station.lat_pos }};
+                            document.getElementById("lon-pos").innerHTML = {{ station.lon_pos }};
+                            document.getElementById("station-pic").setAttribute('src',"{% static station.station_pic.url %}");
+                            document.getElementById('station-panel').style.display='block';
+                            stationpanel.addEventListener('click',function(){
+                               window.location.href = "{% url 'surveillanceapp:stationdetails' station.station_id %}";
+                            });
 
-                        //set infowindow content
-                        iw.setContent(coords[i].name);
-                        iw.open(map, marker);
+                            //set infowindow content
+                            iw.setContent("{{ station.station_name }}");
+                            iw.open(map, marker);
+                        }
                     }
-                }
+                )(marker));
 
-              )(marker,i));
+            {% endfor %}
 
-            }
         }
 
         //close-station-info icon listener
         //sets station panel css display attribute to none
         document.getElementById('close-station-info').addEventListener('click',function(){
-                           document.getElementById('station-panel').style.display='none';
-                        });
+           document.getElementById('station-panel').style.display='none';
+        });
+
 
     </script>
 
