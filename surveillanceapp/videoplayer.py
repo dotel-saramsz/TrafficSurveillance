@@ -285,3 +285,6 @@ def runvideo(video, socketchannel):
         json.dump(analytics.congestion_jsondata, outfile)
     with open(report.contribution_jsonfile, 'w') as outfile:
         json.dump(analytics.contrib_jsondata, outfile)
+
+    video.report = True
+    video.save()

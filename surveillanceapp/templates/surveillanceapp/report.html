@@ -1,16 +1,28 @@
 {% extends 'surveillanceapp/base.html' %}
 {% load static %}
 
+{% block extraheadjs %}
+    <script src="{% static 'js/highcharts.js' %}"></script>
+{% endblock %}
+
 {% block main-content %}
     <div class="row">
-      <div class="col-lg-12">
-        <ol class="breadcrumb">
-          <li><i class="fa fa-home"></i><a href="{% url 'surveillanceapp:index' %}">Home</a></li>
-          <li><i class="fa fa-laptop"></i>Analysis</li>
-        </ol>
-      </div>
+        <div class="col-lg-10">
+            <ol class="breadcrumb" style="margin-bottom: 0%;">
+              <li><i class="fa fa-home"></i><a href="{% url 'surveillanceapp:index' %}">Home</a></li>
+                <li><i class="fa fa-laptop"></i><a href="{% url 'surveillanceapp:stationlist' %}">Stations</a></li>
+                <li><i class="fa fa-map-marker"></i><a href="{% url 'surveillanceapp:stationdetails' report.video.station.station_id %}">{{ report.video.station.station_name }}</a></li>
+                <li><i class="fa fa-camera"></i><a href="{% url 'surveillanceapp:video' report.video.station.station_id report.video.video_id %}">Video</a></li>
+              <li><i class="fa fa-chart-bar"></i>Analysis Report</li>
+            </ol>
+        </div>
+        <div class="col-lg-2">
+            <a id="export-pdf" href="{% static report.report_file %}" target="_blank" class="btn btn-block btn-primary">
+                <span class="fa fa-file">   Export to PDF</span>
+            </a>
+        </div>
     </div>
-    <div class="row">
+    <div class="row" style="margin-top: 1%">
         <div class="col-lg-12">
             <section class="panel panel-default">
               <div class="panel-heading">
@@ -30,22 +42,31 @@
                     <div class="tab-pane fade in active" id="vcount">
                         <div class="col-lg-12 col-md-12">
                          {% for vehicle in vclass_names %}
-                         <div class="col-lg-6 panel panel-primary">
-                              <div class="panel-body" id="{{ vehicle }}count"></div>
-                         </div>
+                             <div class="col-lg-6 panel panel-primary">
+                                  <div class="panel-body" id="{{ vehicle }}count-graph"></div>
+                             </div>
                          {% endfor %}
                         </div>
                     </div>
 
                     <div class="tab-pane col-lg-12" id="vcongestion">
                         <div class="col-lg-12 panel panel-primary">
-                              <div class="panel-body" id="congraph"></div>
+                              <div class="panel-body" id="congest-graph"></div>
+                        </div>
+                        <div class="col-lg-12 panel panel-primary">
+                              <div class="panel-body" id="congest-rollgraph"></div>
+                        </div>
+                        <div class="col-lg-12 panel panel-primary">
+                              <div class="panel-body" id="totcount-graph"></div>
+                        </div>
+                        <div class="col-lg-12 panel panel-primary">
+                              <div class="panel-body" id="totcount-rollgraph"></div>
                         </div>
                     </div>
 
                     <div class="tab-pane col-lg-12" id="vcontribution">
                         <div class="col-lg-12 panel panel-primary">
-                              <div class="panel-body center-block" id="contribgraph"></div>
+                              <div class="panel-body center-block" id="contrib-graph"></div>
                         </div>
                     </div>
                  </div>
@@ -57,20 +78,18 @@
 {% endblock %}
 
 {% block extrajs %}
-    <script src="{% static 'js/highcharts.js' %}"></script>
     <script>
-        {% for chart in vcounts %}
-        Highcharts.chart({{ chart|safe }}.xAxis.categories+"count", {{ chart|safe }});
-        console.log({{ chart|safe }});
+        {% for chart in count_chart %}
+            Highcharts.chart("{{ chart.class_name }}count-graph", {{ chart.chart|safe }});
         {% endfor %}
 
-        console.log({{ vcon|safe }});
-        Highcharts.chart('congraph', {{ vcon|safe }});
+        Highcharts.chart('totcount-graph', {{ totalcount_chart|safe }});
+        Highcharts.chart('totcount-rollgraph', {{ totalcount_roll_chart|safe }});
 
-        console.log({{ vcontrib|safe }});
-        Highcharts.chart('contribgraph', {{ vcontrib|safe }});
+        Highcharts.chart('congest-graph', {{ congest_chart|safe }});
+        Highcharts.chart('congest-rollgraph', {{ congest_roll_chart|safe }});
 
-
+        Highcharts.chart('contrib-graph', {{ contrib_chart|safe }});
 
     </script>
 {% endblock %}

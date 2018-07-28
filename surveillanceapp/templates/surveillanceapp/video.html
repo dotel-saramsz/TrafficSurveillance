@@ -9,7 +9,15 @@
     <div class="row">
         <div class="col-lg-12">
             <button id="video-play-btn" class="btn btn-primary">Play Video</button>
-            <a href="{% url 'surveillanceapp:stationlist' %}" id="report-btn" class="btn btn-success pull-right" style="display: none">View Report</a>
+            {% if not video.report %}
+                <button data-href="" id="report-btn" class="btn btn-success pull-right" style="display: none">
+                    View Report
+                </button>
+            {% else %}
+                <button data-href="{% url 'surveillanceapp:report' video.station.station_id video.video_id %}" id="report-btn" class="btn btn-success pull-right">
+                    View Report
+                </button>
+            {% endif %}
         </div>
     </div>
     <div class="row" style="padding-top: 2%">
@@ -142,11 +150,6 @@
             bargraph = Highcharts.chart('bargraph', bargraphoptions);
         }
 
-        function showbtn() {
-            reportbtn.style.display = 'inline';
-            stopbtn.style.display = 'none';
-        }
-
         playbtn.addEventListener('click',function (event) {
             video_url = '{{ video.video_id }}';
             socket = new WebSocket('ws://'+window.location.host+'/video/'+video_url);
@@ -163,7 +166,7 @@
             socket.onclose = function close(ev) {
                 console.log('Websocket connection is now being closed');
                 reportbtn.style.display = 'inline';
-                stopbtn.style.display = 'none';
+                reportbtn.setAttribute('data-href',"{% url 'surveillanceapp:report' video.station.station_id video.video_id %}")
             };
             socket.onmessage = function message(event) {
                 var received = JSON.parse(event.data);
@@ -190,8 +193,8 @@
             reportbtn.style.display = 'none';
         });
 
-        stopbtn.addEventListener('click',function (ev) {
-            socket.close(1000,'Stop button was pressed');
+        reportbtn.addEventListener('click',function (ev) {
+            window.location.href = this.getAttribute('data-href');
         });
 
     </script>
