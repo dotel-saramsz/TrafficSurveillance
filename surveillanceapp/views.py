@@ -6,6 +6,10 @@ from . import cvrender
 import cv2
 import json
 import numpy as np
+import datetime
+import os
+import re
+from django.conf import settings
 
 
 def index(request):
@@ -27,7 +31,7 @@ def addNewStation(request):
         form = StationForm(request.POST, request.FILES)
         if form.is_valid():
             station = form.save(commit=False)
-            print(station.station_pic.url)
+            os.mkdir(os.path.join(settings.VIDEO_DIR, station.station_name))     #Create a new folder to store the videos of that station
             station.save()
             return redirect('surveillanceapp:stationdetails', pk=station.station_id)
     else:
@@ -44,18 +48,63 @@ def list_stations(request):
     return render(request, 'surveillanceapp/stationlist.html', {'title': 'Station List', 'station_list': station_list})
 
 
-class StationDetailView(DetailView):
-    model = Station
-    template_name = 'surveillanceapp/stationdetails.html'
+def station_detail(request,pk):
+    try:
+        station = Station.objects.get(pk=pk)
+        folder_name = station.station_name
+        search_dir = os.path.join(settings.VIDEO_DIR, folder_name)
 
-    def get_context_data(self, *args, **kwargs):
-        context = super(StationDetailView, self).get_context_data(*args, **kwargs)
-        context['videolist'] = SurveillanceVideo.objects.filter(station_id=self.kwargs['pk'])
-        return context
+        for file in os.scandir(search_dir):
+            stats = os.stat(file.path)
+            timestamp = datetime.datetime.fromtimestamp(stats.st_ctime)
+            access_time = timestamp.strftime('%Y-%m-%d_%H:%M:%S')
+            pattern = r'[a-zA-Z]+_\d{4}-\d{2}-\d{2}_\d{2}:\d{2}:\d{2}\.\w{3,}'
+
+            if not re.match(pattern, file.name):
+                # This means a new video is added to that folder
+                print(file.name, 'in ',folder_name,' does not match the pattern')
+                unique_name = '{}_{}'.format(folder_name, access_time)
+                fileext = os.path.splitext(file.name)[1]
+
+                video_name = unique_name    # The unique name to be used for JSON files as well
+
+                video_filename = os.path.join(search_dir, unique_name + fileext)    # The full path to the video file
+
+                os.rename(file.path, video_filename)    # To rename the video file according to our standards
+
+                # extracting a thumbnail and saving as an image
+                cap = cv2.VideoCapture(video_filename)
+                cap.set(cv2.CAP_PROP_POS_MSEC, 10000)  # capture a frame at position 10 seconds from the start
+                duration = math.ceil((cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(
+                    cv2.CAP_PROP_FPS)) / 60)  # Finds the duration in minutes
+                ret, frame = cap.read()
+                if ret:
+                    thumbnail_filename = os.path.join('video_thumbnails', '{}.jpg'.format(unique_name))
+                    thumbnail_path = os.path.join(settings.BASE_DIR, 'static', thumbnail_filename)
+                    frame = cvrender.overlap_play(frame)
+                    cv2.imwrite(thumbnail_path, frame)
+                    print('Thumbnail created and saved')
+                cap.release()
+
+                # Now create a new Surveillance Video model to save the new video
+                newvideo = SurveillanceVideo.objects.create(station=station,
+                                                            video_name=video_name,
+                                                            video_filename=video_filename,
+                                                            timestamp=timestamp,
+                                                            duration=duration,
+                                                            thumbnail_filename=thumbnail_filename)
+
+                print('New Video found and added: {}, {}, {}, {}'.format(newvideo.video_filename,newvideo.timestamp,newvideo.thumbnail_filename,newvideo.duration))
+        videolist = SurveillanceVideo.objects.filter(station_id=pk)
+        return render(request, 'surveillanceapp/stationdetails.html',{'station': station, 'videolist': videolist})
+
+    except Station.DoesNotExist:
+        raise Http404
 
 
-def test(request):
-    return render(request,'surveillanceapp/test.html')
+def surveillance_video(request,station_id,video_id):
+    video = SurveillanceVideo.objects.get(video_id=video_id)
+    return render(request, 'surveillanceapp/video.html', {'video': video})
 
 
 def report(request):

@@ -8,6 +8,7 @@ import math
 from darkflow.net.build import TFNet
 import numpy as np
 from django.conf import settings
+from .models import *
 
 model_path = os.path.join(settings.BASE_DIR,'cfg/yolo-obj.cfg')
 weights_path = os.path.join(settings.BASE_DIR,'bin/yolo-obj_1000.weights')
@@ -176,16 +177,6 @@ class App:
                     })
                 }, True)
 
-                # plt.ion()
-                # plt.show()
-                # plt.subplot(211)
-                # plt.ylabel('No. of vehicles')
-                # plt.plot(analytics.xs, analytics.numbercount)
-                # plt.subplot(212)
-                # plt.ylabel('Congestion Index')
-                # plt.plot(analytics.xs, analytics.congcount)
-                # plt.draw()
-                # plt.pause(0.001)
                 self.starttime = time.time()
                 analytics.realtime_count = np.zeros(8, dtype=int)
                 analytics.realtime_congestion = 0
@@ -261,7 +252,7 @@ class MyVideoCapture:
 
 
 # Create a window and pass it to the Application object
-def runvideo(videopath, socketchannel):
+def runvideo(video, socketchannel):
 
     global tfnet
     tfnet = TFNet(options)
@@ -269,12 +260,28 @@ def runvideo(videopath, socketchannel):
     global analytics
     analytics = Analytics()
 
-    App(tkinter.Tk(), "Tkinter and OpenCV",videopath, socketchannel)
+    global area_pts
+    if video.lane_dimens:
+        area_pts = video.parsedimens()  # To get the polygon vertices for generating the area mask
+
+    App(tkinter.Tk(), "Tkinter and OpenCV",video.video_filename, socketchannel)
     print('Main loop has now ended. Writing into JSON files...')
 
-    with open('tkcountreport.json', 'w') as outfile:
+    # Create or open surveillance report model and store the json files in the specified directory
+    try:
+        report = video.surveillance_report
+        print('Report already exists')
+    except: #When report is not created yet, exception is thrown
+        print('New Report Created')
+        report = SurveillanceReport(video=video)
+        report.count_jsonfile = os.path.join(settings.COUNT_JSON_DIR, '{}.json'.format(video.video_name))
+        report.congestion_jsonfile = os.path.join(settings.CONGESTION_JSON_DIR, '{}.json'.format(video.video_name))
+        report.contribution_jsonfile = os.path.join(settings.CONTRIB_JSON_DIR, '{}.json'.format(video.video_name))
+        report.save()
+
+    with open(report.count_jsonfile, 'w') as outfile:
         json.dump(analytics.count_jsondata, outfile)
-    with open('tkcongestionreport.json', 'w') as outfile:
+    with open(report.congestion_jsonfile, 'w') as outfile:
         json.dump(analytics.congestion_jsondata, outfile)
-    with open('tkcontribreport.json', 'w') as outfile:
+    with open(report.contribution_jsonfile, 'w') as outfile:
         json.dump(analytics.contrib_jsondata, outfile)

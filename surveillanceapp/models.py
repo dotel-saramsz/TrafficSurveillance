@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 import os
+import re
 
 # Check below by replacing with BASE_DIR from settings
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -38,26 +39,22 @@ class SurveillanceVideo(models.Model):
     def __str__(self):
         return str(self.video_name)
 
-    ## store as a list
-    def storeDimens(self):
-        pass
-
-    ## parse list and retrive dimensions
-    def parseDimens(self):
-        pass
-
-    ## try to retrieve first frame from surveillancevideo
-    def setThumbnail(self):
-        pass
-
-    def getSurveillanceImage(self):
-        pass
+    # parse lane_dimensn and retrieve list of points
+    def parsedimens(self):
+        pattern = r'\[(\d+,\d+)\]'
+        points = re.finditer(pattern, self.lane_dimens)
+        point_list = []
+        for point in points:
+            point = point.group()
+            point = [int(each) for each in point.lstrip('[').rstrip(']').split(',')]
+            point_list.append(point)
+        return point_list
 
 
 ##Surveillance Report Class has one to one relation with Surveillance Video class
 class SurveillanceReport(models.Model):
     report_id = models.AutoField(primary_key=True)
-    video = models.OneToOneField(SurveillanceVideo, on_delete=models.CASCADE)
+    video = models.OneToOneField(SurveillanceVideo, on_delete=models.CASCADE, related_name='surveillance_report')
     avg_capacity_index = models.FloatField(default=0)
     avg_count_index = models.FloatField(default=0)
     congestion_jsonfile = models.CharField(null=True, max_length=100)
@@ -66,7 +63,8 @@ class SurveillanceReport(models.Model):
     report_file = models.CharField(null=True, max_length=100)
 
     def __str__(self):
-        return self.report_id
+        identifier = 'Report {} for {}'.format(self.report_id,self.video.video_name)
+        return identifier
 
     def getCountList(self):
         pass

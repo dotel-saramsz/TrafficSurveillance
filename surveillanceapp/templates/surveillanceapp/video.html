@@ -148,7 +148,8 @@
         }
 
         playbtn.addEventListener('click',function (event) {
-            socket = new WebSocket('ws://'+window.location.host+'/video/v100');
+            video_url = '{{ video.video_id }}';
+            socket = new WebSocket('ws://'+window.location.host+'/video/'+video_url);
             socket.onopen = function open() {
                 console.log('Websocket connection has opened successfully');
                 socket.send(JSON.stringify({

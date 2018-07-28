@@ -9,6 +9,7 @@ from . import cvrender, videoplayer
 import numpy as np
 import os
 from django.conf import settings
+from .models import *
 
 
 class MyChannel(channel.Channel):
@@ -45,7 +46,8 @@ def testfunc(returnchannel):
 
 
 def ws_connect(message,videoid):
-    print(message)
+    video = SurveillanceVideo.objects.get(video_id=int(videoid))
+    print('New socket connection for video: {}'.format(video.video_filename))
     Group('users').add(message.reply_channel)
     message.reply_channel.send({
         'accept': True
@@ -53,12 +55,11 @@ def ws_connect(message,videoid):
 
 
 def ws_receive(message,videoid):
-    print('A message has arrived')
-    print(message.reply_channel)
+    video = SurveillanceVideo.objects.get(video_id=int(videoid))
+    print('New message for video: {}'.format(video.video_filename))
     received = json.loads(message.content.get('text'))
     if received['start']:
-        videopath = os.path.join(settings.BASE_DIR,'testvideos/ratnapark.MOV')   # This is the place where we find the address of the video
-        videoplayer.runvideo(videopath, message.reply_channel)
+        videoplayer.runvideo(video, message.reply_channel)
         print('This must be printed after the video has been closed and returned to consumer')
 
 
