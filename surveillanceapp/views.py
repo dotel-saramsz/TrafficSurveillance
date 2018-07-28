@@ -42,7 +42,27 @@ def addNewStation(request):
 
 def list_stations(request):
     try:
-        station_list = Station.objects.all()
+        stations = Station.objects.all()
+        station_list = []
+        for station in stations:
+            total_videos = 0
+            analysed_videos = 0
+            for video in station.surveillance_videos.all():
+                if video.report:
+                    analysed_videos += 1
+                total_videos += 1
+            if total_videos == 0:
+                percent = 0
+            else:
+                percent = int(analysed_videos/total_videos*100)
+            station_list.append({
+                'station': station,
+                'progress': {
+                    'total': total_videos,
+                    'analysed': analysed_videos,
+                    'percent': percent
+                }
+            })
     except Station.DoesNotExist:
         raise Http404
     return render(request, 'surveillanceapp/stationlist.html', {'title': 'Station List', 'station_list': station_list})
@@ -75,8 +95,7 @@ def station_detail(request,pk):
                 # extracting a thumbnail and saving as an image
                 cap = cv2.VideoCapture(video_filename)
                 cap.set(cv2.CAP_PROP_POS_MSEC, 10000)  # capture a frame at position 10 seconds from the start
-                duration = math.ceil((cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(
-                    cv2.CAP_PROP_FPS)) / 60)  # Finds the duration in minutes
+                duration = math.ceil((cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS)))  # Finds the duration in seconds
                 ret, frame = cap.read()
                 if ret:
                     thumbnail_filename = os.path.join('video_thumbnails', '{}.jpg'.format(unique_name))

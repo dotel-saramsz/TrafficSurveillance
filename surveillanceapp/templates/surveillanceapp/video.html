@@ -7,14 +7,22 @@
 
 {% block main-content %}
     <div class="row">
-        <div class="col-lg-12">
-            <button id="video-play-btn" class="btn btn-primary">Play Video</button>
+        <div class="col-lg-2">
+            <button id="video-play-btn" class="btn btn-block btn-primary">Play Video</button>
+        </div>
+        <div class="col-lg-8">
+            <div class="progress" style="margin-top:1%; background: #394a59;">
+                <div id="video-progress-bar" class="progress-bar video-progress" role="progressbar" style="width: 0%; background: #d8ab5a;">
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2">
             {% if not video.report %}
-                <button data-href="" id="report-btn" class="btn btn-success pull-right" style="display: none">
+                <button data-href="" id="report-btn" class="btn btn-block btn-success pull-right" style="display: none">
                     View Report
                 </button>
             {% else %}
-                <button data-href="{% url 'surveillanceapp:report' video.station.station_id video.video_id %}" id="report-btn" class="btn btn-success pull-right">
+                <button data-href="{% url 'surveillanceapp:report' video.station.station_id video.video_id %}" id="report-btn" class="btn btn-block btn-success pull-right">
                     View Report
                 </button>
             {% endif %}
@@ -40,7 +48,7 @@
     <script>
         var playbtn = document.querySelector('#video-play-btn');
         var reportbtn = document.querySelector('#report-btn');
-        var listbody = document.querySelector('#list-body');
+        var progressbar = document.querySelector('#video-progress-bar');
         var socket = null;
         var numbergraph;
         var congestiongraph;
@@ -153,29 +161,32 @@
         playbtn.addEventListener('click',function (event) {
             video_url = '{{ video.video_id }}';
             socket = new WebSocket('ws://'+window.location.host+'/video/'+video_url);
+
             socket.onopen = function open() {
-                console.log('Websocket connection has opened successfully');
+                console.log('Main Websocket connection has opened successfully');
                 socket.send(JSON.stringify({
                     'start': true,
                     'message': 'You can start the video'
                 }));
-                listbody.innerHTML = '';
-                stopbtn.style.display = 'inline';
                 reportbtn.style.display = 'none';
             };
             socket.onclose = function close(ev) {
-                console.log('Websocket connection is now being closed');
+                console.log('Main Websocket connection is now being closed');
                 reportbtn.style.display = 'inline';
                 reportbtn.setAttribute('data-href',"{% url 'surveillanceapp:report' video.station.station_id video.video_id %}")
             };
             socket.onmessage = function message(event) {
                 var received = JSON.parse(event.data);
-                console.log(received);
-                if(received['eof'] == true){
+                if(received['type'] == 'eof'){
                     socket.close(1000,'Server closed it');
                     {#showbtn();#}
                 }
-                else {
+                else if(received['type'] == 'progress') {
+                    console.log(received['percentage']);
+                    progressbar.style.width = received['percentage'].toString()+'%';
+                    progressbar.textContent = received['percentage'].toString()+'%';
+                }
+                else if(received['type'] == 'normal') {
                     var numbercount = received['numbercount'];
                     var congcount = received['congcount'];
                     var vclasscount = received['vclasscount'];
@@ -189,6 +200,7 @@
             if(socket.readyState == WebSocket.OPEN){
                 socket.onopen();
             }
+
             cleargraph();
             reportbtn.style.display = 'none';
         });

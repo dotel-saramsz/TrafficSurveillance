@@ -30,6 +30,7 @@ class SurveillanceVideo(models.Model):
     report = models.BooleanField(default=False)
     lane_dimens = models.CharField(max_length=200, null=True)
     duration = models.BigIntegerField(null=True)
+    analysed_duration = models.BigIntegerField(default=0)
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):

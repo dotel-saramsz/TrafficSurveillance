@@ -30,7 +30,7 @@ getcolor = {
     7:(100,50,100)
 }
 area_pts = [[0,719],[0,352],[478,0],[936,0],[1073,250],[1279,495],[1279,719]]   # This is the default area mask. In actual scenario, change according to videoid
-
+mainvideo_timeelapsed = 0
 vclass_name = ['Tempo','Bike','Car','Taxi','Micro','Pickup','Bus','Truck']
 
 
@@ -71,7 +71,7 @@ class App:
         self.report_framecount = 0
 
         # open video source (by default this will try to open the computer webcam)
-        self.vid = MyVideoCapture(self.video_source)
+        self.vid = MyVideoCapture(self.video_source.video_filename)
 
         # Create a canvas that can fit the above video source size
         self.canvas = tkinter.Canvas(window, width = self.vid.width, height = self.vid.height)
@@ -154,12 +154,9 @@ class App:
             # Two types of analysis scenario: One for real-time viewing corresponding to compute power, another for actual video time interval
             # Real-time analysis
             if time.time() - self.starttime >= 1.0:
-                print('Framecount since last bunch: {}'.format(self.realtime_framecount))
                 self.timeelapsed = math.floor(float(np.round(time.time() - self.beginning, 1)))
                 avg_rtimecount = np.round(analytics.realtime_count / self.realtime_framecount).astype(int)
                 avg_rtimecongestion = float(np.round(analytics.realtime_congestion / self.realtime_framecount, 3))
-                print('Average realtime congestion in this interval is {}'.format(avg_rtimecongestion))
-                print('Sum of average no.of vehicles in this interval is {}'.format(avg_rtimecount))
                 numbercount = int(sum(avg_rtimecount))
                 congcount = avg_rtimecongestion
                 analytics.numbercount.append(numbercount)
@@ -167,10 +164,9 @@ class App:
                 analytics.xs.append(self.timeelapsed)
                 vclasscount = [int(count) for count in avg_rtimecount]
                 # The following code will send data through channels to plot real-time graph
-
                 self.channel.send({
                     'text': json.dumps({
-                        'eof': False,
+                        'type': 'normal',
                         'numbercount': numbercount,
                         'congcount': congcount,
                         'vclasscount': vclasscount
@@ -182,22 +178,32 @@ class App:
                 analytics.realtime_congestion = 0
                 self.realtime_framecount = 0
 
-            # Analysis for report generation
+            # Analysis for report generation; this corresponds to 1 second on the actual video
             if self.report_framecount == self.vid.initial_framerate:
+                global mainvideo_timeelapsed
+                mainvideo_timeelapsed += 1
+                percent_analysed = int(mainvideo_timeelapsed/self.video_source.duration*100)    # Percentage of original video time analysed
+
                 # now, we can write into the json file
                 avg_reportcount = np.round(analytics.report_count / self.report_framecount).astype(int)
                 avg_reportcongestion = np.round(analytics.report_congestion / self.report_framecount, 3)
                 avg_congestioncontrib = np.round(analytics.report_congestion_contrib / self.report_framecount, 3)
-                print('Just appended to json: {} with total vehicles:{}'.format(avg_reportcount.tolist(),
-                                                                                sum(avg_reportcount)))
-                print('Just appended total congestion in 1sec of video: {}'.format(avg_reportcongestion))
-                print('Just appended congestion contrib in 1sec of video as: {}'.format(avg_congestioncontrib.tolist()))
                 analytics.count_jsondata.append(avg_reportcount.tolist())
                 analytics.congestion_jsondata.append(avg_reportcongestion)
                 analytics.contrib_jsondata.append(avg_congestioncontrib.tolist())
                 analytics.report_count = np.zeros(8, dtype=int)
                 analytics.report_congestion = 0
                 analytics.report_congestion_contrib = np.zeros(8, dtype=float)
+                # The following code will send data through channels to update the progress bar
+                self.channel.send({
+                    'text': json.dumps({
+                        'type': 'progress',
+                        'analysed': mainvideo_timeelapsed,
+                        'total': self.video_source.duration,
+                        'percentage': percent_analysed
+                    })
+                }, True)
+                print('Time elapsed: {} and Percentage: {}%'.format(mainvideo_timeelapsed,percent_analysed))
                 self.report_framecount = 0
 
             timestr = 'Time elapsed: {:.1f} seconds'.format(self.timeelapsed)
@@ -216,7 +222,7 @@ class App:
         print('Main Window is closed')
         self.channel.send({
             'text': json.dumps({
-                'eof': True,
+                'type': 'eof',
             })
         }, True)
 
@@ -260,11 +266,14 @@ def runvideo(video, socketchannel):
     global analytics
     analytics = Analytics()
 
+    global mainvideo_timeelapsed
+    mainvideo_timeelapsed = 0
+
     global area_pts
     if video.lane_dimens:
         area_pts = video.parsedimens()  # To get the polygon vertices for generating the area mask
 
-    App(tkinter.Tk(), "Tkinter and OpenCV",video.video_filename, socketchannel)
+    App(tkinter.Tk(), "Tkinter and OpenCV",video, socketchannel)
     print('Main loop has now ended. Writing into JSON files...')
 
     # Create or open surveillance report model and store the json files in the specified directory
@@ -286,5 +295,6 @@ def runvideo(video, socketchannel):
     with open(report.contribution_jsonfile, 'w') as outfile:
         json.dump(analytics.contrib_jsondata, outfile)
 
+    video.analysed_duration = mainvideo_timeelapsed
     video.report = True
     video.save()
