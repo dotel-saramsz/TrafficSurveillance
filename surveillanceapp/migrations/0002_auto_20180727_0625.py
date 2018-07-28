@@ -95,7 +95,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='surveillancevideo',
             name='video_file',
-            field=models.FileField(max_length=250, null=True, upload_to=surveillanceapp.models.SurveillanceVideo.file_path),
+            field=models.FileField(max_length=250, null=True),
         ),
     ]
 

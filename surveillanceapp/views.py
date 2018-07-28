@@ -1,10 +1,9 @@
 from django.shortcuts import render, redirect, Http404, HttpResponse
-from .models import *
+from .models import Station,SurveillanceVideo,SurveillanceReport
 from django.views.generic import ListView,DetailView
 from .forms import *
 from . import cvrender
 import cv2
-import multiprocessing
 import json
 import numpy as np
 
@@ -51,7 +50,7 @@ class StationDetailView(DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(StationDetailView, self).get_context_data(*args, **kwargs)
-        context['video'] = SurveillanceVideo.objects.filter(station_id=self.kwargs['pk'])
+        context['videolist'] = SurveillanceVideo.objects.filter(station_id=self.kwargs['pk'])
         return context
 
 

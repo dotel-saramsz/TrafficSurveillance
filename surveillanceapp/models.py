@@ -20,27 +20,23 @@ class Station(models.Model):
 
 ## surveillance video class, this class has many to one relation with Station class
 class SurveillanceVideo(models.Model):
-    video_id=models.AutoField(primary_key=True)
+    video_id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField()  # we will be manually adding videos of different days so don't add autonow
     station = models.ForeignKey(Station, on_delete=models.CASCADE, related_name='surveillance_videos')
+    thumbnail_filename = models.CharField(max_length=200,null=True)
+    video_name = models.CharField(max_length=100, null=True)
+    video_filename = models.CharField(max_length=200, null=True)
+    report = models.BooleanField(default=False)
+    lane_dimens = models.CharField(max_length=200, null=True)
+    duration = models.BigIntegerField(null=True)
 
-    ##set custom filename
-    def file_path(self, filename):
-        extension = (os.path.splitext(filename))[1]
-        filename = str(self.video_id) + '_' + str(self.timestamp.date()) + '_' + str(
-            self.station)  ##get the file extension
-        return os.path.join(settings.BASE_DIR, 'media/surveillance_videos/', filename) + extension
-    video_file = models.FileField(upload_to=file_path,max_length=250,null=True)
-    report=models.BooleanField(default=False)
-    lane_dimens=models.CharField(max_length=50, null=True)
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        print('Model save was called')
+        super(SurveillanceVideo, self).save()
 
     def __str__(self):
-        return str(self.video_id)
-
-    ##clean data
-    def clean(self,*args,**kwargs):
-        data=super(SurveillanceVideo,self).clean(*args,**kwargs)
-        return data
+        return str(self.video_name)
 
     ## store as a list
     def storeDimens(self):
@@ -60,13 +56,14 @@ class SurveillanceVideo(models.Model):
 
 ##Surveillance Report Class has one to one relation with Surveillance Video class
 class SurveillanceReport(models.Model):
-    report_id=models.AutoField(primary_key=True)
-    video=models.OneToOneField(SurveillanceVideo, on_delete=models.CASCADE)
-    avg_capacity_index=models.FloatField()
-    avg_count_index=models.FloatField()
-    congestion_data=models.FileField(null=True)
-    count_data=models.FileField(null=True)
-    contribution_data=models.FileField(null=True)
+    report_id = models.AutoField(primary_key=True)
+    video = models.OneToOneField(SurveillanceVideo, on_delete=models.CASCADE)
+    avg_capacity_index = models.FloatField(default=0)
+    avg_count_index = models.FloatField(default=0)
+    congestion_jsonfile = models.CharField(null=True, max_length=100)
+    count_jsonfile = models.CharField(null=True, max_length=100)
+    contribution_jsonfile = models.CharField(null=True, max_length=100)
+    report_file = models.CharField(null=True, max_length=100)
 
     def __str__(self):
         return self.report_id

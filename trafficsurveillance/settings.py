@@ -108,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kathmandu'
 
 USE_I18N = True
 
@@ -135,3 +135,8 @@ CHANNEL_LAYERS = {
         'ROUTING': 'trafficsurveillance.routing.channel_routing',
     }
 }
+
+COUNT_JSON_DIR = os.path.join(BASE_DIR,'graphjsons/countjsons')
+CONGESTION_JSON_DIR = os.path.join(BASE_DIR,'graphjsons/congestionjsons')
+CONTRIB_JSON_DIR = os.path.join(BASE_DIR,'graphjsons/contribjsons')
+VIDEO_DIR = os.path.join(BASE_DIR,'surveillance_videos')
