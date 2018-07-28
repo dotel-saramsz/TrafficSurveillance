@@ -68,3 +68,5 @@ def save_pdf(report,vclass_name,vclass_count,totalcount,rolling_avg_count,conges
     reportpdf.close()
     report.report_file = pdf_filename
     report.save()
+
+    plt.close('all')
