@@ -182,7 +182,6 @@
                     {#showbtn();#}
                 }
                 else if(received['type'] == 'progress') {
-                    console.log(received['percentage']);
                     progressbar.style.width = received['percentage'].toString()+'%';
                     progressbar.textContent = received['percentage'].toString()+'%';
                 }

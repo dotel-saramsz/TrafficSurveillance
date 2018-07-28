@@ -32,7 +32,7 @@ getcolor = {
 area_pts = [[0,719],[0,352],[478,0],[936,0],[1073,250],[1279,495],[1279,719]]   # This is the default area mask. In actual scenario, change according to videoid
 mainvideo_timeelapsed = 0
 vclass_name = ['Tempo','Bike','Car','Taxi','Micro','Pickup','Bus','Truck']
-
+totalframes = 0
 
 class Analytics:
     def __init__(self):
@@ -69,6 +69,7 @@ class App:
         self.timeelapsed = 0
         self.realtime_framecount = 0
         self.report_framecount = 0
+        self.progress_framecount = 0
 
         # open video source (by default this will try to open the computer webcam)
         self.vid = MyVideoCapture(self.video_source.video_filename)
@@ -150,6 +151,8 @@ class App:
 
             self.realtime_framecount += 1
             self.report_framecount += 1
+            self.progress_framecount += 1
+
 
             # Two types of analysis scenario: One for real-time viewing corresponding to compute power, another for actual video time interval
             # Real-time analysis
@@ -194,15 +197,7 @@ class App:
                 analytics.report_count = np.zeros(8, dtype=int)
                 analytics.report_congestion = 0
                 analytics.report_congestion_contrib = np.zeros(8, dtype=float)
-                # The following code will send data through channels to update the progress bar
-                self.channel.send({
-                    'text': json.dumps({
-                        'type': 'progress',
-                        'analysed': mainvideo_timeelapsed,
-                        'total': self.video_source.duration,
-                        'percentage': percent_analysed
-                    })
-                }, True)
+
                 print('Time elapsed: {} and Percentage: {}%'.format(mainvideo_timeelapsed,percent_analysed))
                 self.report_framecount = 0
 
@@ -216,15 +211,18 @@ class App:
             print('Video stream ended possibly')
             self.window.destroy()
 
+        # The following code will send data through channels to update the progress bar
+        self.channel.send({
+            'text': json.dumps({
+                'type': 'progress',
+                'percentage': int(self.progress_framecount/totalframes*100)
+            })
+        }, True)
+
         self.window.after(self.delay, self.update)
 
     def __del__(self):
         print('Main Window is closed')
-        self.channel.send({
-            'text': json.dumps({
-                'type': 'eof',
-            })
-        }, True)
 
 
 class MyVideoCapture:
@@ -238,6 +236,8 @@ class MyVideoCapture:
         self.width = self.vid.get(cv2.CAP_PROP_FRAME_WIDTH)
         self.height = self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
         self.initial_framerate = math.floor(self.vid.get(5))  # initial frame rate of the video
+        global totalframes
+        totalframes = self.vid.get(cv2.CAP_PROP_FRAME_COUNT)
 
     def get_frame(self):
         if self.vid.isOpened():
@@ -275,6 +275,11 @@ def runvideo(video, socketchannel):
 
     App(tkinter.Tk(), "Tkinter and OpenCV",video, socketchannel)
     print('Main loop has now ended. Writing into JSON files...')
+    socketchannel.send({
+        'text': json.dumps({
+            'type': 'eof',
+        })
+    }, True)
 
     # Create or open surveillance report model and store the json files in the specified directory
     try:
