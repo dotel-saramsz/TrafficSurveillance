@@ -17,9 +17,11 @@ def index(request):
     stations_data = Station.objects.all()
     querySetLength = Station.objects.count()
     context={
-        'title':title,
-        'stations':stations_data,
-        'stationCount':querySetLength
+        'title': title,
+        'stations': stations_data,
+        'stationCount': querySetLength,
+        'videoCount': SurveillanceVideo.objects.count(),
+        'reportCount': SurveillanceReport.objects.count()
     }
     return render(request,'surveillanceapp/index.html',context)
 
@@ -159,12 +161,11 @@ def surveillance_report(request,station_id,video_id):
     avg_contrib = np.round(avg_contrib, 3).tolist()
 
     # Rolling average of congestion sampled over a window of 5 seconds
-    interval = 5
+    interval = int(math.ceil(0.1*len(countdata)))
     rolling_avg_congestion = np.convolve(np.array(congestiondata), np.ones((interval,)) / interval, mode='same').tolist()
-    rolling_avg_congestion = [float(each) for each in rolling_avg_congestion ]
+    rolling_avg_congestion = [float(each) for each in rolling_avg_congestion]
 
     # Rolling average of total no. of vehicles sampled over a window of 5 seconds
-    interval = 5
     rolling_avg_count = np.convolve(np.array(totalcount), np.ones((interval,)) / interval, mode='same').tolist()
     rolling_avg_count = [float(each) for each in rolling_avg_count]
 
@@ -202,7 +203,7 @@ def surveillance_report(request,station_id,video_id):
 
     totalcount_roll_chart = json.dumps({
         'chart': {'type': 'line'},
-        'title': {'text': 'Rolling average plot of total vehicle count sampled over a window of 5 seconds'},
+        'title': {'text': 'Rolling average plot of total vehicle count sampled over a window of {} seconds'.format(interval)},
         'xAxis': {'title': {'text': 'Time'}},
         'yAxis': {'title': {'text': 'No.of Vehicles'}},
         'series': [{'name': 'No.of vehicles', 'data': rolling_avg_count,'color': '#7c212c'}],
@@ -220,7 +221,7 @@ def surveillance_report(request,station_id,video_id):
 
     congestion_roll_chart = json.dumps({
         'chart': {'type': 'line'},
-        'title': {'text': 'Rolling average plot of congestion sampled over a window of 5 seconds'},
+        'title': {'text': 'Rolling average plot of congestion sampled over a window of {} seconds'.format(interval)},
         'xAxis': {'title': {'text': 'Time'}},
         'yAxis': {'title': {'text': 'Congestion'}},
         'series': [{'name': 'Congestion Index', 'data': rolling_avg_congestion,'color': '#7c212c'}],
@@ -250,7 +251,7 @@ def surveillance_report(request,station_id,video_id):
             'class_name': each
         })
 
-    cvrender.save_pdf(report,vclass_name,vclass_count,totalcount,rolling_avg_count,congestiondata,rolling_avg_congestion,avg_contrib)
+    cvrender.save_pdf(report,vclass_name,vclass_count,totalcount,rolling_avg_count,congestiondata,rolling_avg_congestion,avg_contrib,interval)
 
 
     return render(request, 'surveillanceapp/report.html', {'report': report,

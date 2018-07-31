@@ -27,7 +27,6 @@
             margin-top: -2%;
             color: #394A59;
         }
-
     </style>
 {% endblock %}
 
@@ -59,7 +58,7 @@
             {% endif %}
         </div>
     </div>
-    <div id="vehicle-wrapper" class="row" style="margin-top: 1%">
+    <div id="vehicle-wrapper" class="row" style="margin-top: 1%; display: none;">
         <div class="col-lg-12" style="text-align: center;">
             <div class="vehicle-block">
                 <img src="{% static 'img/tempo.png' %}" class="vehicle-img">
@@ -117,6 +116,48 @@
         <div id="bargraph" class="col-lg-10 col-lg-push-1">
         </div>
     </div>
+    <div class="row" id="summary-wrapper">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-info-circle"></i> Analysis Notice
+                </div>
+                <div class="panel-body">
+                    {% if not video.report %}
+                        <div style="font-size: 250%;">
+                            The video has not been analysed yet.
+                        </div>
+                        <div style="font-size: 150%; margin-top: 2%">
+                            Therefore, no statistical information is available for the video.
+                            Play the video to observe its real time analysis which includes:
+                            <ull>
+                                <li>Number of vehicles in the road at current time</li>
+                                <li>Number of vehicles that have passed through the road</li>
+                                <li>Congestion index of the road at current time</li>
+                            </ull>
+                        </div>
+                        <div style="font-size: 250%; margin-top: 2%">
+                            A detailed report with graphs will also be available after analysis
+                        </div>
+                    {% else %}
+                        <p style="font-size: 250%;">
+                            The video has been analysed upto <strong>{{ video.analysed_percentage }} %</strong> of its total duration.
+                        </p>
+                        <div style="font-size: 200%; margin-top:2%;">
+                            During this analysis period:
+                            <ull>
+                                <li>Total number of vehicles that have passed through: <strong>{{ video.surveillance_report.outgoing_vehicle_count }}</strong></li>
+                                <li>Average congestion index of the road: <strong>{{ video.surveillance_report.avg_congestion_index| floatformat:2 }}</strong></li>
+                            </ull>
+                        </div>
+                        <div style="font-size: 200%; margin-top:2%;">
+                            For a detailed report, view the analysis report that is available now. You can also re-analyse the video by clicking the play button
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extrajs %}
@@ -125,6 +166,8 @@
         var reportbtn = document.querySelector('#report-btn');
         var progressbar = document.querySelector('#video-progress-bar');
         var outgoing_infos = document.querySelectorAll('.outgoing-count');
+        var outgoing_box = document.querySelector('#vehicle-wrapper');
+        var summary_box = document.querySelector('#summary-wrapper');
         var socket = null;
         var numbergraph;
         var congestiongraph;
@@ -282,7 +325,8 @@
             if(socket.readyState == WebSocket.OPEN){
                 socket.onopen();
             }
-
+            summary_box.style.display = 'none';
+            outgoing_box.style.display = 'block';
             cleargraph();
             reportbtn.style.display = 'none';
         });

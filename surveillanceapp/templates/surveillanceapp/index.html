@@ -7,6 +7,14 @@
     <style>
     .info-box{
         padding: auto;
+        background: #1a2732;
+        color: #dbdde2;
+    }
+    .info-box i{
+        color: #fed189;
+    }
+    .info-box p{
+        font-size: 125%;
     }
     #station-panel{
         display: none;   /* hide station-panel in the beginning */
@@ -35,26 +43,26 @@
     </div>
     <div class="row">
         <div class="col-lg-3">
-            <div class="info-box blue-bg">
+            <div class="info-box">
               <i class="fa fa-map-marker"></i>
               <div class="count">{{ stationCount }}</div>
-              <div>Stations</div>
+              <p>Stations</p>
             </div>
         </div>
         <div class="col-lg-3">
-            <div class="info-box green-bg">
-              <i class="fa fa-signal"></i>
-              <div class="count">5</div>
-              <div>Reports Analysed</div>
+            <div class="info-box">
+              <i class="fa fa-camera"></i>
+              <div class="count">{{ videoCount }}</div>
+              <p>Surveillance Videos</p>
             </div>
         </div>
-          <div class="col-lg-3">
-            <div class="info-box weather-bg">
-              <i class="fa fa-image"></i>
-              <div class="count">10</div>
-              <div>Surveillance Video</div>
+        <div class="col-lg-3">
+            <div class="info-box">
+              <i class="fa fa-book"></i>
+              <div class="count">{{ reportCount }}</div>
+              <p>Reports Generated</p>
             </div>
-          </div>
+        </div>
     </div>
     <!-- MAP and Station Detail starts -->
     <div class="row">

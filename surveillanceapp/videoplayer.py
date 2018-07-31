@@ -33,7 +33,7 @@ for i in range(0, len(vclass_name)):
     col = (int(cvcol[0][0][0]), int(cvcol[0][0][1]), int(cvcol[0][0][2]))
     getcolor.append(col)
 
-area_pts = [[0,719],[0,352],[478,0],[936,0],[1073,250],[1279,495],[1279,719]]   # This is the default area mask. In actual scenario, change according to videoid
+# area_pts = [[0,719],[0,352],[478,0],[936,0],[1073,250],[1279,495],[1279,719]]   # This is the default area mask. In actual scenario, change according to videoid
 analysed_percentage = 0
 totalframes = 0
 
@@ -153,7 +153,7 @@ class App:
 
                         # making some criteria for the new center to be tracked     WHY DIFFERENT THRESHOLDS?
                         if label == 'Bus' or label == 'Truck':
-                            xthresh, ythresh = 250, 200
+                            xthresh, ythresh = 150, 150
                         else:
                             xthresh, ythresh = 80, 80
 
@@ -211,10 +211,15 @@ class App:
 
             # Sum of all vclass_areas may not be equal to vehicle_area due to overlapping, hence to compute contribution of each
             # vclass_area in vehicle area, we subtract each by the overlapped area / total vclass
-            overlap_portion = (sum(vclass_congestion) - vehicle_congestion) / len([each for each in vclass_congestion if each != 0])
-            vclass_congestion = [each - overlap_portion if each >= 0 else 0 for each in vclass_congestion]
-            for i, congestion in enumerate(vclass_congestion):
-                analytics.report_congestion_contrib[i] += congestion / vehicle_congestion
+
+            if vehicle_congestion != 0: #Check if road is empty or not!
+                overlap_portion = (sum(vclass_congestion) - vehicle_congestion) / len([each for each in vclass_congestion if each != 0])
+                vclass_congestion = [each - overlap_portion if each >= 0 else 0 for each in vclass_congestion]
+                for i, congestion in enumerate(vclass_congestion):
+                    analytics.report_congestion_contrib[i] += congestion / vehicle_congestion
+            else:   #Road is empty if this happens, so we avoid the 0/0 error case
+                for i in range(len(vclass_congestion)):
+                    analytics.report_congestion_contrib[i] += 0
 
             self.realtime_framecount += 1
             self.report_framecount += 1
@@ -377,6 +382,21 @@ def runvideo(video, socketchannel):
         report.congestion_jsonfile = os.path.join(settings.CONGESTION_JSON_DIR, '{}.json'.format(video.video_name))
         report.contribution_jsonfile = os.path.join(settings.CONTRIB_JSON_DIR, '{}.json'.format(video.video_name))
         report.save()
+
+    report.outgoing_tempo_count = int(analytics.class_count_list[0])
+    report.outgoing_bike_count = int(analytics.class_count_list[1])
+    report.outgoing_car_count = int(analytics.class_count_list[2])
+    report.outgoing_taxi_count = int(analytics.class_count_list[3])
+    report.outgoing_micro_count = int(analytics.class_count_list[4])
+    report.outgoing_pickup_count = int(analytics.class_count_list[5])
+    report.outgoing_bus_count = int(analytics.class_count_list[6])
+    report.outgoing_truck_count = int(analytics.class_count_list[7])
+    report.outgoing_vehicle_count = int(sum(analytics.class_count_list))
+
+    report.avg_congestion_index = float(sum(analytics.congestion_jsondata)/len(analytics.congestion_jsondata))
+    report.avg_count_index = float(sum([sum(vclasscount) for vclasscount in analytics.count_jsondata])/len(analytics.count_jsondata))
+
+    report.save()
 
     with open(report.count_jsonfile, 'w') as outfile:
         json.dump(analytics.count_jsondata, outfile)
