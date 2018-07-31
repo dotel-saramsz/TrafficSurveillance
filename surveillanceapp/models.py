@@ -31,6 +31,7 @@ class SurveillanceVideo(models.Model):
     lane_dimens = models.CharField(max_length=200, null=True)
     duration = models.BigIntegerField(null=True)
     analysed_duration = models.BigIntegerField(default=0)
+    analysed_percentage = models.IntegerField(default=0)
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
@@ -56,12 +57,21 @@ class SurveillanceVideo(models.Model):
 class SurveillanceReport(models.Model):
     report_id = models.AutoField(primary_key=True)
     video = models.OneToOneField(SurveillanceVideo, on_delete=models.CASCADE, related_name='surveillance_report')
-    avg_capacity_index = models.FloatField(default=0)
-    avg_count_index = models.FloatField(default=0)
     congestion_jsonfile = models.CharField(null=True, max_length=100)
     count_jsonfile = models.CharField(null=True, max_length=100)
     contribution_jsonfile = models.CharField(null=True, max_length=100)
     report_file = models.CharField(null=True, max_length=100)
+    avg_capacity_index = models.FloatField(default=0)
+    avg_count_index = models.FloatField(default=0)
+    passed_vehicle_count = models.IntegerField(default=0)
+    passed_tempo_count = models.IntegerField(default=0)
+    passed_bike_count = models.IntegerField(default=0)
+    passed_car_count = models.IntegerField(default=0)
+    passed_taxi_count = models.IntegerField(default=0)
+    passed_micro_count = models.IntegerField(default=0)
+    passed_pickup_count = models.IntegerField(default=0)
+    passed_bus_count = models.IntegerField(default=0)
+    passed_truck_count = models.IntegerField(default=0)
 
     def __str__(self):
         identifier = 'Report {} for {}'.format(self.report_id,self.video.video_name)

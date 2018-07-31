@@ -77,8 +77,8 @@ def station_detail(request,pk):
         for file in os.scandir(search_dir):
             stats = os.stat(file.path)
             timestamp = datetime.datetime.fromtimestamp(stats.st_ctime)
-            access_time = timestamp.strftime('%Y-%m-%d_%H:%M:%S')
-            pattern = r'[a-zA-Z]+_\d{4}-\d{2}-\d{2}_\d{2}:\d{2}:\d{2}\.\w{3,}'
+            access_time = timestamp.strftime('%Y-%m-%d_%H-%M-%S')
+            pattern = r'[a-zA-Z]+_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.\w{3,}'
 
             if not re.match(pattern, file.name):
                 # This means a new video is added to that folder

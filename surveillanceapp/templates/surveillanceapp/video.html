@@ -1,6 +1,36 @@
 {% extends 'surveillanceapp/base.html' %}
 {% load static %}
 
+{% block extracss %}
+    <style>
+        .vehicle-img{
+            width: 152px;
+            height: 152px;
+            display: block;
+        }
+        .vehicle-block{
+            border-width: 5px;
+            border-style: solid;
+            border-color: #394a59;
+            margin-left: 1%;
+            margin-right: 1%;
+            text-align: center;
+            display: inline-block;
+        }
+        .vehicle-block p{
+            font-size: 150%;
+            color: #394a59;
+        }
+        .outgoing-count{
+            font-weight: bold;
+            font-size: 200%;
+            margin-top: -2%;
+            color: #394A59;
+        }
+
+    </style>
+{% endblock %}
+
 {% block extraheadjs %}
     <script src="{% static 'js/highcharts.js' %}"></script>
 {% endblock %}
@@ -12,7 +42,8 @@
         </div>
         <div class="col-lg-8">
             <div class="progress" style="margin-top:1%; background: #394a59;">
-                <div id="video-progress-bar" class="progress-bar video-progress" role="progressbar" style="width: 0%; background: #d8ab5a;">
+                <div id="video-progress-bar" class="progress-bar video-progress" role="progressbar" style="width: {{ video.analysed_percentage }}%; background: #d8ab5a;">
+                    {{ video.analysed_percentage }}%
                 </div>
             </div>
         </div>
@@ -28,6 +59,50 @@
             {% endif %}
         </div>
     </div>
+    <div id="vehicle-wrapper" class="row" style="margin-top: 1%">
+        <div class="col-lg-12" style="text-align: center;">
+            <div class="vehicle-block">
+                <img src="{% static 'img/tempo.png' %}" class="vehicle-img">
+                <p>Tempo</p>
+                <h2 class="outgoing-count" data-vclass="Tempo">0</h2>
+            </div>
+            <div class="vehicle-block">
+                <img src="{% static 'img/bike.png' %}" class="vehicle-img">
+                <p>Bike</p>
+                <h2 class="outgoing-count" data-vclass="Bike">0</h2>
+            </div>
+            <div class="vehicle-block">
+                <img src="{% static 'img/car.png' %}" class="vehicle-img">
+                <p>Car</p>
+                <h2 class="outgoing-count" data-vclass="Car">0</h2>
+            </div>
+            <div class="vehicle-block">
+                <img src="{% static 'img/taxi.png' %}" class="vehicle-img">
+                <p>Taxi</p>
+                <h2 class="outgoing-count" data-vclass="Taxi">0</h2>
+            </div>
+            <div class="vehicle-block">
+                <img src="{% static 'img/micro.png' %}" class="vehicle-img">
+                <p>Micro</p>
+                <h2 class="outgoing-count" data-vclass="Micro">0</h2>
+            </div>
+            <div class="vehicle-block">
+                <img src="{% static 'img/pickup.png' %}" class="vehicle-img">
+                <p>Pickup</p>
+                <h2 class="outgoing-count" data-vclass="Pickup">0</h2>
+            </div>
+            <div class="vehicle-block">
+                <img src="{% static 'img/bus.png' %}" class="vehicle-img">
+                <p>Bus</p>
+                <h2 class="outgoing-count" data-vclass="Bus">0</h2>
+            </div>
+            <div class="vehicle-block">
+                <img src="{% static 'img/truck.png' %}" class="vehicle-img">
+                <p>Truck</p>
+                <h2 class="outgoing-count" data-vclass="Truck">0</h2>
+            </div>
+        </div>
+    </div>
     <div class="row" style="padding-top: 2%">
         <div id="graph-body" class="col-lg-12">
             <div class="col-lg-6" id="number-graph">
@@ -38,7 +113,7 @@
             </div>
         </div>
     </div>
-    <div class="row" style="padding-top: 2%">
+    <div class="row" style="padding-top: 1%">
         <div id="bargraph" class="col-lg-10 col-lg-push-1">
         </div>
     </div>
@@ -49,6 +124,7 @@
         var playbtn = document.querySelector('#video-play-btn');
         var reportbtn = document.querySelector('#report-btn');
         var progressbar = document.querySelector('#video-progress-bar');
+        var outgoing_infos = document.querySelectorAll('.outgoing-count');
         var socket = null;
         var numbergraph;
         var congestiongraph;
@@ -122,7 +198,7 @@
                     type: 'bar'
                 },
                 title: {
-                    text: 'Real-time plot of no. of vehicles in the road by Vehicle Class'
+                    text: 'No. of vehicles in the road (by vehicle class) currently in the road '
                 },
                 xAxis: {
                     categories: ['Tempo', 'Bike', 'Car', 'Taxi', 'Micro', 'Pickup', 'Bus', 'Truck'],
@@ -184,6 +260,13 @@
                 else if(received['type'] == 'progress') {
                     progressbar.style.width = received['percentage'].toString()+'%';
                     progressbar.textContent = received['percentage'].toString()+'%';
+                    if(received['outgoing_changed'] == true){   // To only update the elements if there is a change in the count
+                        outgoing_count = received['outgoing_count'];
+                        console.log(outgoing_count);
+                        outgoing_infos.forEach(function (vclass_info) {
+                            vclass_info.textContent = outgoing_count[vclass_info.getAttribute('data-vclass')];
+                        });
+                    }
                 }
                 else if(received['type'] == 'normal') {
                     var numbercount = received['numbercount'];

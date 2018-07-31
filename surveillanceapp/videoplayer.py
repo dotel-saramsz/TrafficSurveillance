@@ -19,19 +19,22 @@ options = {
     'gpu': 0.7
 }
 tfnet = None
-getcolor = {
-    0:(0,0,0),
-    1:(255,0,0),
-    2:(0,0,255),
-    3:(0,255,255),
-    4:(0,255,0),
-    5:(255,255,0),
-    6:(255,0,255),
-    7:(100,50,100)
-}
-area_pts = [[0,719],[0,352],[478,0],[936,0],[1073,250],[1279,495],[1279,719]]   # This is the default area mask. In actual scenario, change according to videoid
-mainvideo_timeelapsed = 0
 vclass_name = ['Tempo','Bike','Car','Taxi','Micro','Pickup','Bus','Truck']
+
+# setting the boundary box colors for the vehicle classes
+getcolor = [] ##############
+for i in range(0, len(vclass_name)):
+    hue = 255 * i / len(vclass_name)
+    col = np.zeros((1, 1, 3)).astype('uint8')
+    col[0][0][0] = hue
+    col[0][0][1] = 128
+    col[0][0][2] = 255
+    cvcol = cv2.cvtColor(col, cv2.COLOR_HSV2BGR)
+    col = (int(cvcol[0][0][0]), int(cvcol[0][0][1]), int(cvcol[0][0][2]))
+    getcolor.append(col)
+
+area_pts = [[0,719],[0,352],[478,0],[936,0],[1073,250],[1279,495],[1279,719]]   # This is the default area mask. In actual scenario, change according to videoid
+analysed_percentage = 0
 totalframes = 0
 
 class Analytics:
@@ -44,6 +47,7 @@ class Analytics:
         self.numbercount = []
         self.congcount = []
         self.xs = []
+        self.class_count_list = np.zeros(8, dtype=int)
 
         self.realtime_count = np.zeros(8, dtype=int)
         self.report_count = np.zeros(8, dtype=int)
@@ -70,6 +74,11 @@ class App:
         self.realtime_framecount = 0
         self.report_framecount = 0
         self.progress_framecount = 0
+        self.overall_framecount = 0
+        self.count = 0
+        self.prev_points = np.array([])
+        self.old_frame = None
+        self.outgoing_changed = False
 
         # open video source (by default this will try to open the computer webcam)
         self.vid = MyVideoCapture(self.video_source.video_filename)
@@ -96,6 +105,14 @@ class App:
         if ret:
             cv2.imwrite("frame-" + time.strftime("%d-%m-%Y-%H-%M-%S") + ".jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
 
+    def track(self, frame):
+        lk_params = dict(winSize=(15, 15),
+                         maxLevel=3,
+                         criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+        # gray frames need to be passed?
+        tracked, st, err = cv2.calcOpticalFlowPyrLK(self.old_frame, frame, np.array(self.prev_points, dtype=np.float32), None, **lk_params)
+        return tracked
+
     def update(self):
 
         ret, frame = self.vid.get_frame()
@@ -110,19 +127,57 @@ class App:
 
             for result in results:
                 label = result['label']
+                confidence = result['confidence']
                 vclass_index = vclass_name.index(label)
                 analytics.realtime_count[vclass_index] += 1
                 analytics.report_count[vclass_index] += 1
 
                 tl = (result['topleft']['x'], result['topleft']['y'])
                 br = (result['bottomright']['x'], result['bottomright']['y'])
+
+                x_center = (tl[0] + (br[0] - tl[0]) / 2)
+                y_center = (tl[1] + (br[1] - tl[1]) / 2)
+
                 points = np.array([list(tl), [br[0], tl[1]], list(br), [tl[0], br[1]]])
                 # because, fillConvexPoly requires numpy array of points of the bbox polygon
                 analytics.vehicle_mask = cv2.fillConvexPoly(analytics.vehicle_mask, points, (255, 255, 255))
                 analytics.vclass_mask[vclass_index] = cv2.fillConvexPoly(analytics.vclass_mask[vclass_index], points, (255, 255, 255))
 
-                frame = cv2.rectangle(frame, tl, br, getcolor[vclass_index], 4)
-                frame = cv2.putText(frame, label, tl, cv2.FONT_HERSHEY_COMPLEX, 1, getcolor[vclass_index], 2)
+                if self.overall_framecount == 0:
+                    BB_center = np.array([[x_center, y_center]])
+                    self.prev_points = np.append(self.prev_points, BB_center).reshape(-1, 1, 2)
+                    analytics.class_count_list[vclass_index] += 1
+                    self.outgoing_changed = True
+                else:
+                    if y_center >= 200 and y_center < 400:
+
+                        # making some criteria for the new center to be tracked     WHY DIFFERENT THRESHOLDS?
+                        if label == 'Bus' or label == 'Truck':
+                            xthresh, ythresh = 250, 200
+                        else:
+                            xthresh, ythresh = 80, 80
+
+                        add_center = True
+
+                        for new_center in self.prev_points:
+                            x, y = new_center[0].ravel()
+                            if abs(x - x_center) < xthresh and abs(y - y_center) < ythresh:
+                                add_center = False
+                                break
+
+                        if add_center is True:
+                            # This is the point where we have found a new incoming vehicle
+                            BB_center = np.array([[x_center, y_center]])
+                            self.prev_points = np.append(self.prev_points, BB_center).reshape(-1, 1, 2)
+                            analytics.class_count_list[vclass_index] += 1
+                            self.outgoing_changed = True
+
+
+                frame = cv2.rectangle(frame, tl, br, getcolor[vclass_index], 2)
+                boxtitle = label + " " + ('%.2f' %confidence)
+                cv2.rectangle(frame, (tl[0], tl[1] - 15), (tl[0] + 100, tl[1] + 5), getcolor[vclass_index], -1)
+                cv2.putText(frame, boxtitle, tl, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
+
 
             if self.realtime_framecount == 0:
                 analytics.area_mask = cv2.fillConvexPoly(analytics.area_mask, np.array(area_pts), (255, 255, 255))
@@ -135,6 +190,18 @@ class App:
             vehicle_congestion = np.round((np.count_nonzero(analytics.vehicle_mask) / analytics.vehicle_mask.size) / analytics.road_area, 3)
             analytics.realtime_congestion += vehicle_congestion
             analytics.report_congestion += vehicle_congestion
+
+            if self.overall_framecount is not 0:
+                if len(self.prev_points) is not 0:
+                    tracked_points = self.track(frame)
+                    self.prev_points = np.array([])
+                    for points in tracked_points:
+                        x, y = points[0].ravel()
+                        if y < 600:
+                            self.prev_points = np.append(self.prev_points, np.array([[x, y]])).reshape(-1, 1, 2)
+
+            #update frame
+            self.old_frame = frame
 
             vclass_congestion = []
             for mask in analytics.vclass_mask:
@@ -184,8 +251,6 @@ class App:
             # Analysis for report generation; this corresponds to 1 second on the actual video
             if self.report_framecount == self.vid.initial_framerate:
                 global mainvideo_timeelapsed
-                mainvideo_timeelapsed += 1
-                percent_analysed = int(mainvideo_timeelapsed/self.video_source.duration*100)    # Percentage of original video time analysed
 
                 # now, we can write into the json file
                 avg_reportcount = np.round(analytics.report_count / self.report_framecount).astype(int)
@@ -198,11 +263,22 @@ class App:
                 analytics.report_congestion = 0
                 analytics.report_congestion_contrib = np.zeros(8, dtype=float)
 
-                print('Time elapsed: {} and Percentage: {}%'.format(mainvideo_timeelapsed,percent_analysed))
                 self.report_framecount = 0
 
-            timestr = 'Time elapsed: {:.1f} seconds'.format(self.timeelapsed)
-            frame = cv2.putText(frame, timestr, (300, 20), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 2)
+            # frame changes
+            self.overall_framecount += 1
+
+            cv2.line(frame, (0, 200), (self.vid.width, 200), (0, 255, 0), 1)
+            cv2.line(frame, (0, 400), (self.vid.width, 400), (0, 255, 0), 1)
+            timestr = 'Time elapsed: {:.1f}s'.format(self.timeelapsed)
+            cv2.rectangle(frame, (0, 0), (170, 200), (255, 255, 255), -1)
+            text_vloc = 15
+            for vcount, vclass in zip(analytics.class_count_list, vclass_name):
+                cv2.putText(frame, '{0:14}:{1}'.format(vclass, vcount), (5, text_vloc), cv2.FONT_HERSHEY_SIMPLEX,
+                            0.5, (0, 0, 0), 1)
+                text_vloc += 20
+
+            cv2.putText(frame, timestr, (5, text_vloc + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
 
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Need to convert BGR to RGB for tkinter window
             self.photo = PIL.ImageTk.PhotoImage(image=PIL.Image.fromarray(frame))
@@ -211,13 +287,21 @@ class App:
             print('Video stream ended possibly')
             self.window.destroy()
 
-        # The following code will send data through channels to update the progress bar
+        global analysed_percentage
+        analysed_percentage = int(self.progress_framecount/totalframes*100)
+
+        # The following code will send data through channels to update the outgoing count box and progress bar
+        outgoing_count_list = [int(eachcount) for eachcount in analytics.class_count_list]
+        outgoing_count_dict = dict(zip(vclass_name,outgoing_count_list))
         self.channel.send({
             'text': json.dumps({
                 'type': 'progress',
-                'percentage': int(self.progress_framecount/totalframes*100)
+                'percentage': analysed_percentage,
+                'outgoing_changed': self.outgoing_changed,
+                'outgoing_count': outgoing_count_dict
             })
         }, True)
+        self.outgoing_changed = False
 
         self.window.after(self.delay, self.update)
 
@@ -233,8 +317,9 @@ class MyVideoCapture:
             raise ValueError("Unable to open video source", video_source)
 
         # Get video source width and height
-        self.width = self.vid.get(cv2.CAP_PROP_FRAME_WIDTH)
-        self.height = self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        self.width = int(self.vid.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.height = int(self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
         self.initial_framerate = math.floor(self.vid.get(5))  # initial frame rate of the video
         global totalframes
         totalframes = self.vid.get(cv2.CAP_PROP_FRAME_COUNT)
@@ -266,8 +351,8 @@ def runvideo(video, socketchannel):
     global analytics
     analytics = Analytics()
 
-    global mainvideo_timeelapsed
-    mainvideo_timeelapsed = 0
+    global analysed_percentage
+    analysed_percentage = 0
 
     global area_pts
     if video.lane_dimens:
@@ -300,6 +385,6 @@ def runvideo(video, socketchannel):
     with open(report.contribution_jsonfile, 'w') as outfile:
         json.dump(analytics.contrib_jsondata, outfile)
 
-    video.analysed_duration = mainvideo_timeelapsed
+    video.analysed_percentage = analysed_percentage
     video.report = True
     video.save()

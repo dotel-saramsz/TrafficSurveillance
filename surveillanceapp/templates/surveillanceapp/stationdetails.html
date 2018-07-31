@@ -93,7 +93,8 @@
                              <div class="col-lg-3" style="text-align: center;">
                                  <p>Analysis Progress:</p>
                                  <div class="progress thin" style="margin: 5%; background: #394a59;">
-                                    <div class="progress-bar video-progress " role="progressbar"  data-duration="{{ video.duration }}" data-analysed="{{ video.analysed_duration }}" style="width: 0%; background: #d8ab5a;">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ video.analysed_percentage }}%; background: #d8ab5a;">
+                                        {{ video.analysed_percentage }}%
                                     </div>
                                  </div>
                              </div>
@@ -119,7 +120,7 @@
         //videos
         var videos = document.querySelectorAll('.video-clickable');
         var durations = document.querySelectorAll('.video-duration');
-        var progresses = document.querySelectorAll('.video-progress');
+        {#var progresses = document.querySelectorAll('.video-progress');#}
 
         durations.forEach(function (duration) {
             value = parseInt(duration.getAttribute('data-duration'));
@@ -128,14 +129,14 @@
             duration.textContent = minutes.toString()+' min '+seconds.toString()+' sec'
         });
 
-        progresses.forEach(function (progress) {
-            total = parseInt(progress.getAttribute('data-duration'));
-            analysed = parseInt(progress.getAttribute('data-analysed'));
-            console.log('This video has been analysed for: '+analysed+' seconds');
-            value = Math.round((analysed/total)*100);
-            progress.style.width = value.toString()+'%';
-            progress.textContent = value.toString()+'%';
-        });
+        {#progresses.forEach(function (progress) {#}
+        {#    total = parseInt(progress.getAttribute('data-duration'));#}
+        {#    analysed = parseInt(progress.getAttribute('data-analysed'));#}
+        {#    console.log('This video has been analysed for: '+analysed+' seconds');#}
+        {#    value = Math.round((analysed/total)*100);#}
+        {#    progress.style.width = value.toString()+'%';#}
+        {#    progress.textContent = value.toString()+'%';#}
+        {##}
 
         function initMap() {
             //get station coordinates in js object
