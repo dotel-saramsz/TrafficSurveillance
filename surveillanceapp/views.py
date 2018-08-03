@@ -15,13 +15,17 @@ from django.conf import settings
 def index(request):
     title = "Dashboard"
     stations_data = Station.objects.all()
-    querySetLength = Station.objects.count()
-    context={
+    stationCount = Station.objects.count()
+    vehicleCount = 0
+    for report in SurveillanceReport.objects.all():
+        vehicleCount += report.outgoing_vehicle_count
+    context = {
         'title': title,
         'stations': stations_data,
-        'stationCount': querySetLength,
+        'stationCount': stationCount,
         'videoCount': SurveillanceVideo.objects.count(),
-        'reportCount': SurveillanceReport.objects.count()
+        'reportCount': SurveillanceReport.objects.count(),
+        'vehicleCount': vehicleCount
     }
     return render(request,'surveillanceapp/index.html',context)
 

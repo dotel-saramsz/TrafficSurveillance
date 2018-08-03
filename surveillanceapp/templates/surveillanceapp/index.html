@@ -58,18 +58,25 @@
         </div>
         <div class="col-lg-3">
             <div class="info-box">
-              <i class="fa fa-book"></i>
+              <i class="fas fa-clipboard-list"></i>
               <div class="count">{{ reportCount }}</div>
               <p>Reports Generated</p>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="info-box">
+              <i class="fas fa-bus"></i>
+              <div class="count">{{ vehicleCount }}</div>
+              <p>Vehicles Analyzed</p>
             </div>
         </div>
     </div>
     <!-- MAP and Station Detail starts -->
     <div class="row">
-        <div class="col-lg-8 col-md-12">
+        <div class="col-lg-12" id="map-panel">
             <div class="panel panel-default">
               <div class="panel-heading">
-                <h2><i class="fa fa-map-marker red"></i><strong>Stations Map</strong></h2>
+                <h2><i class="fas fa-map-marker-alt"></i><strong>Stations Map</strong></h2>
                 <div class="panel-actions">
                   <a href="{% url 'surveillanceapp:index' %}" class="btn-setting"><i class="fa fa-refresh"></i></a>
                 </div>
@@ -150,6 +157,8 @@
                             document.getElementById("lat-pos").innerHTML = {{ station.lat_pos }};
                             document.getElementById("lon-pos").innerHTML = {{ station.lon_pos }};
                             document.getElementById("station-pic").setAttribute('src',"{% static station.station_pic.url %}");
+                            document.getElementById("map-panel").classList.remove("col-lg-12");
+                            document.getElementById("map-panel").classList.add("col-lg-8");
                             document.getElementById('station-panel').style.display='block';
                             stationpanel.addEventListener('click',function(){
                                window.location.href = "{% url 'surveillanceapp:stationdetails' station.station_id %}";
@@ -169,7 +178,9 @@
         //close-station-info icon listener
         //sets station panel css display attribute to none
         document.getElementById('close-station-info').addEventListener('click',function(){
-           document.getElementById('station-panel').style.display='none';
+            document.getElementById('station-panel').style.display='none';
+            document.getElementById("map-panel").classList.remove("col-lg-8");
+            document.getElementById("map-panel").classList.add("col-lg-12");
         });
 
 

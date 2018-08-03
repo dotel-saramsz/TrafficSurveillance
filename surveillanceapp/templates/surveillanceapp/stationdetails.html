@@ -9,6 +9,9 @@
         .video-clickable{
             cursor: pointer;
         }
+        #station-detailinfo{
+            font-size: 150%;
+        }
     </style>
 {% endblock %}
 
@@ -39,19 +42,19 @@
                 </div>
                 <div class="panel-body">
                     <div class="col-lg-7">
-                        <div class="bio-graph-info">
+                        <div class="bio-graph-info" id="station-detailinfo">
 
                             <div class="bio-row">
                                 <p><span>Station ID </span>: <strong>{{ station.station_id }}</strong></p>
                             </div>
                             <div class="bio-row">
-                                <p><span>Station Name </span>: <strong>{{ station.station_name }}</strong> </p>
+                                <p><span>Name </span>: <strong>{{ station.station_name }}</strong> </p>
                             </div>
                             <div class="bio-row">
-                                <p><span>Latitude</span>: <strong>{{ station.lat_pos }}</strong></p>
+                                <p><span>Latitude</span>: <strong>{{ station.lat_pos|floatformat:5 }}</strong></p>
                             </div>
                             <div class="bio-row">
-                                <p><span>Longitude</span>: <strong>{{ station.lon_pos }}</strong></p>
+                                <p><span>Longitude</span>: <strong>{{ station.lon_pos|floatformat:5 }}</strong></p>
                             </div>
 
                         </div>
@@ -71,7 +74,7 @@
     <div class="row">
         <div class="col-lg-12 col-md-12">
             <div class="panel">
-                <div class="panel-heading" style="background: #394A59; color: #fff;">
+                <div class="panel-heading" style="background: #394a59; color: #fff;">
                     <h2><i class="fa fa-camera"></i>  <strong>Surveillance Videos</strong></h2>
                 </div>
                 <div class="panel-body ">
