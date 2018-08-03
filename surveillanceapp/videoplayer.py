@@ -9,6 +9,7 @@ from darkflow.net.build import TFNet
 import numpy as np
 from django.conf import settings
 from .models import *
+import datetime
 
 model_path = os.path.join(settings.BASE_DIR,'cfg/yolo-obj.cfg')
 weights_path = os.path.join(settings.BASE_DIR,'bin/yolo-obj_1000.weights')
@@ -217,7 +218,7 @@ class App:
                 vclass_congestion = [each - overlap_portion if each >= 0 else 0 for each in vclass_congestion]
                 for i, congestion in enumerate(vclass_congestion):
                     analytics.report_congestion_contrib[i] += congestion / vehicle_congestion
-            else:   #Road is empty if this happens, so we avoid the 0/0 error case
+            else:   #Road is empty in this case
                 for i in range(len(vclass_congestion)):
                     analytics.report_congestion_contrib[i] += 0
 
@@ -406,5 +407,6 @@ def runvideo(video, socketchannel):
         json.dump(analytics.contrib_jsondata, outfile)
 
     video.analysed_percentage = analysed_percentage
+    video.last_analysed = datetime.datetime.fromtimestamp(time.time())
     video.report = True
     video.save()

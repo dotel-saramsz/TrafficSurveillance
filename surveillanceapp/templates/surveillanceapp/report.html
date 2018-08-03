@@ -27,6 +27,14 @@
             margin-top: -2%;
             color: #394A59;
         }
+        .btn{
+            padding-top: 2% !important;
+            padding-bottom: 2% !important;
+        }
+        .btn-text{
+            font-size: 150%;
+            font-weight: bold;
+        }
 
     </style>
 {% endblock %}
@@ -37,18 +45,23 @@
 
 {% block main-content %}
     <div class="row">
-        <div class="col-lg-10">
+        <div class="col-lg-8">
             <ol class="breadcrumb" style="margin-bottom: 0%;">
               <li><i class="fa fa-home"></i><a href="{% url 'surveillanceapp:index' %}">Home</a></li>
-                <li><i class="fa fa-laptop"></i><a href="{% url 'surveillanceapp:stationlist' %}">Stations</a></li>
-                <li><i class="fa fa-map-marker"></i><a href="{% url 'surveillanceapp:stationdetails' report.video.station.station_id %}">{{ report.video.station.station_name }}</a></li>
-                <li><i class="fa fa-camera"></i><a href="{% url 'surveillanceapp:video' report.video.station.station_id report.video.video_id %}">Video</a></li>
-              <li><i class="fa fa-chart-bar"></i>Analysis Report</li>
+                <li><i class="fas fa-map-marked-alt"></i><a href="{% url 'surveillanceapp:stationlist' %}">Stations</a></li>
+                <li><i class="fas fa-map-marker-alt"></i><a href="{% url 'surveillanceapp:stationdetails' report.video.station.station_id %}">{{ report.video.station.station_name }}</a></li>
+                <li><i class="fas fa-camera"></i><a href="{% url 'surveillanceapp:video' report.video.station.station_id report.video.video_id %}">Video</a></li>
+              <li><i class="fas fa-chart-bar"></i>Analysis Report</li>
             </ol>
         </div>
         <div class="col-lg-2">
-            <a id="export-pdf" href="{% static report.report_file %}" target="_blank" class="btn btn-block btn-primary">
-                <span class="fa fa-file">   Export to PDF</span>
+            <a id="replay-btn" href="{% url 'surveillanceapp:video' report.video.station.station_id report.video.video_id %}" class="btn btn-block btn-primary">
+                <span class="fas fa-play-circle fa-2x" style="margin-right: 6%;"> </span> <span class="btn-text"> Re-analyze Video</span>
+            </a>
+        </div>
+        <div class="col-lg-2">
+            <a id="export-pdf" href="{% static report.report_file %}" target="_blank" class="btn btn-block btn-danger">
+                <span class="fas fa-file-pdf fa-2x" style="margin-right: 6%;"> </span> <span class="btn-text"> Export to PDF</span>
             </a>
         </div>
     </div>

@@ -21,6 +21,14 @@
             box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
             color:white;
             }
+        .btn{
+            padding-top: 2% !important;
+            padding-bottom: 2% !important;
+        }
+        .btn-text{
+            font-size: 150%;
+            font-weight: bold;
+        }
     </style>
 {% endblock %}
 
@@ -65,7 +73,10 @@
                             {% render_field form.station_pic class="form-control" %}
                         </div>
                         <div class="form-group">
-                                <button type="submit" class="btn btn-success">Submit</button>
+                                <button type="submit" class="btn btn-success">
+                                    <span class="fas fa-check-circle fa-2x" style="margin-right: 5%"></span>
+                                    <span class="btn-text"> Submit</span>
+                                </button>
                         </div>
                 </form>
 

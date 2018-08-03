@@ -32,6 +32,7 @@ class SurveillanceVideo(models.Model):
     duration = models.BigIntegerField(null=True)
     analysed_duration = models.BigIntegerField(default=0)
     analysed_percentage = models.IntegerField(default=0)
+    last_analysed = models.DateTimeField(null=True)
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):

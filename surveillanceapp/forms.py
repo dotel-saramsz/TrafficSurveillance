@@ -53,4 +53,4 @@ class VideoAdminForm(forms.ModelForm):
 
     class Meta:
         model = SurveillanceVideo
-        fields = ['timestamp','station','video_filename','lane_dimens','duration']
+        fields = ['timestamp','station','video_filename','lane_dimens','duration','last_analysed']

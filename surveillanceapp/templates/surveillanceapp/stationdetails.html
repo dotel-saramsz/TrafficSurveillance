@@ -20,8 +20,8 @@
         <div class="col-lg-12" style="margin-bottom: 0%;">
             <ol class="breadcrumb" style="margin-bottom: 0%;">
               <li><i class="fa fa-home"></i><a href="{% url 'surveillanceapp:index' %}">Home</a></li>
-                <li><i class="fa fa-laptop"></i><a href="{% url 'surveillanceapp:stationlist' %}">Stations</a></li>
-              <li><i class="fa fa-map-marker"></i>{{ station.station_name }}</li>
+                <li><i class="fas fa-map-marked-alt"></i><a href="{% url 'surveillanceapp:stationlist' %}">Stations</a></li>
+              <li><i class="fas fa-map-marker-alt"></i>{{ station.station_name }}</li>
             </ol>
         </div>
         <div class="col-lg-12" style="margin-top: 0%;">
@@ -53,9 +53,7 @@
                             <div class="bio-row">
                                 <p><span>Longitude</span>: <strong>{{ station.lon_pos }}</strong></p>
                             </div>
-                            <div class="bio-row">
-                                <p><span>Analytical Summary: </span>: <strong>Put some data here ... </strong></p>
-                            </div>
+
                         </div>
                     </div>
                     <!-- station pic here -->

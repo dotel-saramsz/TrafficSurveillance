@@ -116,7 +116,7 @@ def station_detail(request,pk):
                                                             thumbnail_filename=thumbnail_filename)
 
                 print('New Video found and added: {}, {}, {}, {}'.format(newvideo.video_filename,newvideo.timestamp,newvideo.thumbnail_filename,newvideo.duration))
-        videolist = SurveillanceVideo.objects.filter(station_id=pk)
+        videolist = SurveillanceVideo.objects.filter(station_id=pk).order_by('-timestamp')
         return render(request, 'surveillanceapp/stationdetails.html',{'station': station, 'videolist': videolist})
 
     except Station.DoesNotExist:
@@ -151,6 +151,7 @@ def surveillance_report(request,station_id,video_id):
             vclass_count[i].append(data[i])
         totalcount.append(sum(data))
 
+    # Congestion contribution from area approach
     avg_congestion = sum(congestiondata) / len(congestiondata)
     vclass_contrib = [[] for each in vclass_name]
     for i, data in enumerate(contribdata):
@@ -158,7 +159,22 @@ def surveillance_report(request,station_id,video_id):
         for i in range(len(data)):
             vclass_contrib[i].append(actual_contrib[i])
     avg_contrib = [(sum(contrib) / len(contrib)) / avg_congestion for contrib in vclass_contrib]
-    avg_contrib = np.round(avg_contrib, 3).tolist()
+    avg_contrib = np.round(avg_contrib, 3)
+
+    #Congestion contribution from count in bike units method
+    outgoing_counts = [report.outgoing_tempo_count,
+                       report.outgoing_bike_count,
+                       report.outgoing_car_count,
+                       report.outgoing_taxi_count,
+                       report.outgoing_micro_count,
+                       report.outgoing_pickup_count,
+                       report.outgoing_bus_count,
+                       report.outgoing_truck_count]
+    vehicle_weights = [2,1,2,2,3,3,5,5] #This is to convert each vclass count into the bike units
+    outgoing_counts = np.array(outgoing_counts) * np.array(vehicle_weights)
+    count_avgcontrib = np.round(outgoing_counts/np.sum(outgoing_counts), 3)
+
+    net_contrib = np.round((2/3)*count_avgcontrib + (1/3)*avg_contrib, 3).tolist()  #[2/3 * countbased + 1/3 * areabased]
 
     # Rolling average of congestion sampled over a window of 5 seconds
     interval = int(math.ceil(0.1*len(countdata)))
@@ -232,7 +248,7 @@ def surveillance_report(request,station_id,video_id):
     for i in range(0, len(vclass_name)):
         vcontrib_series[i] = {
             'name': vclass_name[i],
-            'y': avg_contrib[i],
+            'y': net_contrib[i],
         }
 
     contribution_chart = json.dumps({
@@ -251,7 +267,7 @@ def surveillance_report(request,station_id,video_id):
             'class_name': each
         })
 
-    cvrender.save_pdf(report,vclass_name,vclass_count,totalcount,rolling_avg_count,congestiondata,rolling_avg_congestion,avg_contrib,interval)
+    cvrender.save_pdf(report,vclass_name,vclass_count,totalcount,rolling_avg_count,congestiondata,rolling_avg_congestion,net_contrib,interval)
 
 
     return render(request, 'surveillanceapp/report.html', {'report': report,
@@ -262,3 +278,27 @@ def surveillance_report(request,station_id,video_id):
                                                            'congest_chart': congestion_chart,
                                                            'congest_roll_chart': congestion_roll_chart,
                                                            'contrib_chart': contribution_chart})
+
+
+def analytics(request):
+    stationlist = Station.objects.all()
+    videolist = []
+    for video in SurveillanceVideo.objects.all().order_by('-last_analysed'):
+        if video.last_analysed is not None:
+            videolist.append(video)
+    return render(request,'surveillanceapp/analytics.html', {'stationlist':stationlist, 'videolist': videolist})
+
+
+def filter_analytics(request):
+    received = request.GET.get('id')
+    videolist = []
+    if received == 'all':
+        for video in SurveillanceVideo.objects.all().order_by('-last_analysed'):
+            if video.last_analysed is not None:
+                videolist.append(video)
+    else:
+        station_id = int(received)
+        for video in SurveillanceVideo.objects.filter(station_id=station_id).order_by('-last_analysed'):
+            if video.last_analysed is not None:
+                videolist.append((video))
+    return render(request,'surveillanceapp/analyticstable.html',{'videolist': videolist})

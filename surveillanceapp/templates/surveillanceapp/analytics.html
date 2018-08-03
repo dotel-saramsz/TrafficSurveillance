@@ -1,0 +1,115 @@
+{% extends 'surveillanceapp/base.html' %}
+{% load static %}
+
+{% block extracss %}
+    <style>
+        table{
+            font-size: 135%;
+            font-weight: bold;
+        }
+        tr{
+            padding-bottom: 2% !important;
+        }
+        td{
+            padding-top: 3% !important;
+            margin-top: 2% !important;
+            padding-bottom: 3% !important;
+            margin-bottom: 2% !important;
+            padding-left: 2% !important;
+        }
+        th{
+            padding-left: 2% !important;
+        }
+        .report-clickable:hover{
+            background: #394A59;
+            color: #f0f2f7;
+        }
+        .report-clickable{
+            cursor: pointer;
+            margin-bottom: 2% !important;
+        }
+        .report-pdf,.report-pdf:visited{
+            color: #9a0000;
+        }
+        .report-pdf:hover{
+            background: #9a0000;
+            color: #f0f2f7;
+        }
+    </style>
+{% endblock %}
+
+{% block main-content %}
+    <div class="row">
+        <div class="col-lg-12" style="margin-bottom: 0%;">
+            <ol class="breadcrumb" style="margin-bottom: 0%;">
+              <li><i class="fa fa-home"></i><a href="{% url 'surveillanceapp:index' %}">Home</a></li>
+                <li><i class="fas fa-chart-bar"></i>Analytics</li>
+            </ol>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-9">
+            <h3 style="font-weight: bold; color: #394a59"> These are analysis reports of the recently analyzed videos </h3>
+        </div>
+        <div class="col-lg-3" style="margin-top: 1%; font-size: 135%">
+            <label for="filter-selection" style="margin-right: 2%;"><span style="font-weight: bold;"> Filter by Station </span></label>
+            <select id="filter-selection" name="station_id">
+                <option value="all" selected>All</option>
+                {% for station in stationlist %}
+                    <option value="{{ station.station_id }}">{{ station.station_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12">
+            <div class="panel">
+                <div class="panel-heading" style="background: #394A59; color: #fff;">
+                    <h2><i class="fa fa-chart-bar"></i>  <strong>Surveillance Reports</strong></h2>
+                </div>
+                <div class="panel-body" id="filter-result">
+                    {% include 'surveillanceapp/analyticstable.html' with videolist=videolist %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extrajs %}
+    <script>
+        var filter = document.querySelector('#filter-selection');
+        var table = document.querySelector('#filter-result');
+        var form = document.querySelector('#filterform');
+        var refreshEvent = new Event('refresh');
+
+
+        table.addEventListener('refresh',function (ev) {
+            var reports = document.querySelectorAll('.report-clickable');
+            var pdfs = document.querySelectorAll('.report-pdf');
+
+            reports.forEach(function (report) {
+            report.addEventListener('click',function (ev) {
+                    target = ev.target.tagName;
+                    window.location.href = this.getAttribute('data-href');
+                });
+            });
+            pdfs.forEach(function (pdf) {
+                pdf.addEventListener('click',function (ev) {
+                    ev.stopPropagation();
+                });
+            });
+        });
+
+        filter.addEventListener('change',function (ev) {
+            var req = new XMLHttpRequest();
+            req.open('GET',"{% url 'surveillanceapp:filter_analytics' %}"+"?id="+this.value,true);
+            req.addEventListener('load',function (ev2) {
+               table.innerHTML = this.responseText;
+               table.dispatchEvent(refreshEvent);
+            });
+            req.send();
+        });
+
+        table.dispatchEvent(refreshEvent);
+    </script>
+{% endblock %}

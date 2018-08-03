@@ -14,7 +14,7 @@
     <!--external css-->
     <!-- font icon -->
     <link href="{%  static 'css/elegant-icons-style.css' %}" rel="stylesheet" />
-    <link href="{%  static 'css/font-awesome.min.css' %}" rel="stylesheet" />
+    <link href="{%  static 'fontawesome/css/all.css' %}" rel="stylesheet" />
     <!-- Custom styles -->
     <!--<link rel="stylesheet" href="css/fullcalendar.css">-->
     <link href="{%  static 'css/widgets.css' %}" rel="stylesheet">
@@ -68,12 +68,12 @@
               </li>
             <li class="active" >
             <a class="" href="{% url 'surveillanceapp:stationlist' %}">
-                  <i class="icon_search_alt"></i>
+                  <i class="fas fa-map-marked-alt"></i>
                   <span>Stations</span>
               </a>
           </li>
             <li class="active">
-            <a class="" href="#">
+            <a class="" href="{% url 'surveillanceapp:analytics' %}">
                   <i class="icon_datareport_alt"></i>
                   <span>Analytics</span>
             </a>

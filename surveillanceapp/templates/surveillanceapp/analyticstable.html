@@ -1,0 +1,29 @@
+{% load static %}
+<table class="table table-responsive">
+    <thead>
+        <tr>
+            <th>S.No.</th>
+            <th>Station</th>
+            <th>Video Timestamp</th>
+            <th>Last Analyzed Time</th>
+            <th>Analysis Progress</th>
+            <th> </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for video in videolist %}
+            <tr class="report-clickable" data-href="{% url 'surveillanceapp:report' video.station.station_id video.video_id %}">
+                <td>{{ forloop.counter }}</td>
+                <td>{{ video.station.station_name }}</td>
+                <td>{{ video.timestamp }}</td>
+                <td>{{ video.last_analysed }}</td>
+                <td>{{ video.analysed_percentage }}%</td>
+                <td>
+                    <a class="report-pdf" href="{% static video.surveillance_report.report_file %}" target="_blank" >
+                        <span class="fas fa-file-pdf fa-2x"></span>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
