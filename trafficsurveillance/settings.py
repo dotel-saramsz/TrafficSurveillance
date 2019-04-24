@@ -136,7 +136,7 @@ CHANNEL_LAYERS = {
     }
 }
 
-COUNT_JSON_DIR = os.path.join(BASE_DIR,'graphjsons/countjsons')
-CONGESTION_JSON_DIR = os.path.join(BASE_DIR,'graphjsons/congestionjsons')
-CONTRIB_JSON_DIR = os.path.join(BASE_DIR,'graphjsons/contribjsons')
-VIDEO_DIR = os.path.join(BASE_DIR,'surveillance_videos')
+COUNT_JSON_DIR = os.path.join(BASE_DIR, 'graphjsons', 'countjsons')
+CONGESTION_JSON_DIR = os.path.join(BASE_DIR, 'graphjsons', 'congestionjsons')
+CONTRIB_JSON_DIR = os.path.join(BASE_DIR, 'graphjsons', 'contribjsons')
+VIDEO_DIR = os.path.join(BASE_DIR, 'surveillance_videos')

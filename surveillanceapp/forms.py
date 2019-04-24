@@ -16,7 +16,8 @@ class VideoAdminForm(forms.ModelForm):
     def clean(self):
         formdata = self.cleaned_data
         entered_filename = formdata.get('video_filename')
-        actual_filename = os.path.join(settings.VIDEO_DIR,entered_filename)
+        station = formdata.get('station')
+        actual_filename = os.path.join(settings.VIDEO_DIR, station.station_name, entered_filename)
         try:
             with open(actual_filename, 'r') as videofile:
                 pass

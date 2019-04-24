@@ -83,23 +83,27 @@ def station_detail(request, pk):
         for file in os.scandir(search_dir):
             stats = os.stat(file.path)
             timestamp = datetime.datetime.fromtimestamp(stats.st_ctime)
-            access_time = timestamp.strftime('%Y-%m-%d_%H-%M-%S')
-            pattern = r'[a-zA-Z]+_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.\w{3,}'
+
+            # New updated video naming style
+            access_time = timestamp.strftime('%Y_%m_%d_%H_%M_%S')
+            pattern = r'[a-zA-Z]+_\d{4}_\d{2}_\d{2}_\d{2}_\d{2}_\d{2}\.\w{3,}'
 
             if not re.match(pattern, file.name):
                 # This means a new video is added to that folder
-                print(file.name, 'in ',folder_name,' does not match the pattern')
+                print(file.name, 'in ', folder_name, ' does not match the pattern')
                 unique_name = '{}_{}'.format(folder_name, access_time)
                 fileext = os.path.splitext(file.name)[1]
 
                 video_name = unique_name    # The unique name to be used for JSON files as well
 
-                video_filename = os.path.join(search_dir, unique_name + fileext)    # The full path to the video file
+                video_filename = unique_name + fileext    # The full path to the video file
 
-                os.rename(file.path, video_filename)    # To rename the video file according to our standards
+                # New updated video naming style
+                video_path = os.path.join(settings.VIDEO_DIR, folder_name, video_filename)
+                os.rename(file.path, video_path)    # To rename the video file according to our standards
 
                 # extracting a thumbnail and saving as an image
-                cap = cv2.VideoCapture(video_filename)
+                cap = cv2.VideoCapture(video_path)
                 cap.set(cv2.CAP_PROP_POS_MSEC, 10000)  # capture a frame at position 10 seconds from the start
                 duration = math.ceil((cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS)))  # Finds the duration in seconds
                 ret, frame = cap.read()
@@ -121,7 +125,7 @@ def station_detail(request, pk):
 
                 print('New Video found and added: {}, {}, {}, {}'.format(newvideo.video_filename,newvideo.timestamp,newvideo.thumbnail_filename,newvideo.duration))
         videolist = SurveillanceVideo.objects.filter(station_id=pk).order_by('-timestamp')
-        return render(request, 'surveillanceapp/stationdetails.html',{'station': station, 'videolist': videolist})
+        return render(request, 'surveillanceapp/stationdetails.html', {'station': station, 'videolist': videolist})
 
     except Station.DoesNotExist:
         raise Http404
@@ -138,13 +142,13 @@ def surveillance_report(request,station_id,video_id):
 
     report = SurveillanceReport.objects.get(video__video_id=video_id)
 
-    with open(report.count_jsonfile, 'r') as countfile:
+    with open(os.path.join(settings.COUNT_JSON_DIR, report.count_jsonfile), 'r') as countfile:
         countdata = json.load(countfile)
 
-    with open(report.congestion_jsonfile, 'r') as congestionfile:
+    with open(os.path.join(settings.CONGESTION_JSON_DIR, report.congestion_jsonfile), 'r') as congestionfile:
         congestiondata = json.load(congestionfile)
 
-    with open(report.contribution_jsonfile, 'r') as contribfile:
+    with open(os.path.join(settings.CONTRIB_JSON_DIR, report.contribution_jsonfile), 'r') as contribfile:
         contribdata = json.load(contribfile)
 
     totalcount = []
@@ -275,7 +279,7 @@ def surveillance_report(request,station_id,video_id):
 
 
     return render(request, 'surveillanceapp/report.html', {'report': report,
-                                                           'vclass_names':vclass_name,
+                                                           'vclass_names': vclass_name,
                                                            'count_chart': count_chart,
                                                            'totalcount_chart': totalcount_chart,
                                                            'totalcount_roll_chart':totalcount_roll_chart,
@@ -304,5 +308,5 @@ def filter_analytics(request):
         station_id = int(received)
         for video in SurveillanceVideo.objects.filter(station_id=station_id).order_by('-last_analysed'):
             if video.last_analysed is not None:
-                videolist.append((video))
-    return render(request,'surveillanceapp/analyticstable.html',{'videolist': videolist})
+                videolist.append(video)
+    return render(request, 'surveillanceapp/analyticstable.html', {'videolist': videolist})

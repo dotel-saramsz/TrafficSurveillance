@@ -11,8 +11,8 @@ from django.conf import settings
 from .models import *
 import datetime
 
-model_path = os.path.join(settings.BASE_DIR,'cfg/yolo-obj.cfg')
-weights_path = os.path.join(settings.BASE_DIR,'bin/yolo-obj_1000.weights')
+model_path = os.path.join(settings.BASE_DIR, 'cfg', 'yolo-obj.cfg')
+weights_path = os.path.join(settings.BASE_DIR, 'bin', 'yolo-obj_1000.weights')
 options = {
     'model': model_path,
     'load': weights_path,
@@ -34,7 +34,7 @@ for i in range(0, len(vclass_name)):
     col = (int(cvcol[0][0][0]), int(cvcol[0][0][1]), int(cvcol[0][0][2]))
     getcolor.append(col)
 
-# area_pts = [[0,719],[0,352],[478,0],[936,0],[1073,250],[1279,495],[1279,719]]   # This is the default area mask. In actual scenario, change according to videoid
+area_pts = [[0,719],[0,352],[478,0],[936,0],[1073,250],[1279,495],[1279,719]]   # This is the default area mask. In actual scenario, change according to videoid
 analysed_percentage = 0
 totalframes = 0
 
@@ -82,10 +82,11 @@ class App:
         self.outgoing_changed = False
 
         # open video source (by default this will try to open the computer webcam)
-        self.vid = MyVideoCapture(self.video_source.video_filename)
+        self.video_path = os.path.join(settings.VIDEO_DIR, self.video_source.station.station_name, self.video_source.video_filename)
+        self.vid = MyVideoCapture(self.video_path)
 
         # Create a canvas that can fit the above video source size
-        self.canvas = tkinter.Canvas(window, width = self.vid.width, height = self.vid.height)
+        self.canvas = tkinter.Canvas(window, width=self.vid.width, height=self.vid.height)
         self.canvas.pack()
 
         # Button that lets the user take a snapshot
@@ -104,7 +105,7 @@ class App:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         if ret:
-            cv2.imwrite("frame-" + time.strftime("%d-%m-%Y-%H-%M-%S") + ".jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+            cv2.imwrite("frame-" + time.strftime("%d_%m_%Y_%H_%M_%S") + ".jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
 
     def track(self, frame):
         lk_params = dict(winSize=(15, 15),
@@ -316,11 +317,11 @@ class App:
 
 
 class MyVideoCapture:
-    def __init__(self, video_source):
+    def __init__(self, video_path):
         # Open the video source
-        self.vid = cv2.VideoCapture(video_source)
+        self.vid = cv2.VideoCapture(video_path)
         if not self.vid.isOpened():
-            raise ValueError("Unable to open video source", video_source)
+            raise ValueError("Unable to open video source", video_path)
 
         # Get video source width and height
         self.width = int(self.vid.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -364,7 +365,8 @@ def runvideo(video, socketchannel):
     if video.lane_dimens:
         area_pts = video.parsedimens()  # To get the polygon vertices for generating the area mask
 
-    App(tkinter.Tk(), "Tkinter and OpenCV",video, socketchannel)
+    App(tkinter.Tk(), "Tkinter and OpenCV", video, socketchannel)
+
     print('Main loop has now ended. Writing into JSON files...')
     socketchannel.send({
         'text': json.dumps({
@@ -379,9 +381,10 @@ def runvideo(video, socketchannel):
     except: #When report is not created yet, exception is thrown
         print('New Report Created')
         report = SurveillanceReport(video=video)
-        report.count_jsonfile = os.path.join(settings.COUNT_JSON_DIR, '{}.json'.format(video.video_name))
-        report.congestion_jsonfile = os.path.join(settings.CONGESTION_JSON_DIR, '{}.json'.format(video.video_name))
-        report.contribution_jsonfile = os.path.join(settings.CONTRIB_JSON_DIR, '{}.json'.format(video.video_name))
+        #New updated report naming style:
+        report.count_jsonfile = '{}.json'.format(video.video_name)
+        report.congestion_jsonfile = '{}.json'.format(video.video_name)
+        report.contribution_jsonfile = '{}.json'.format(video.video_name)
         report.save()
 
     report.outgoing_tempo_count = int(analytics.class_count_list[0])
@@ -399,11 +402,11 @@ def runvideo(video, socketchannel):
 
     report.save()
 
-    with open(report.count_jsonfile, 'w') as outfile:
+    with open(os.path.join(settings.COUNT_JSON_DIR, report.count_jsonfile), 'w') as outfile:
         json.dump(analytics.count_jsondata, outfile)
-    with open(report.congestion_jsonfile, 'w') as outfile:
+    with open(os.path.join(settings.CONGESTION_JSON_DIR, report.congestion_jsonfile), 'w') as outfile:
         json.dump(analytics.congestion_jsondata, outfile)
-    with open(report.contribution_jsonfile, 'w') as outfile:
+    with open(os.path.join(settings.CONTRIB_JSON_DIR, report.contribution_jsonfile), 'w') as outfile:
         json.dump(analytics.contrib_jsondata, outfile)
 
     video.analysed_percentage = analysed_percentage

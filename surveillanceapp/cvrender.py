@@ -81,8 +81,8 @@ def save_pdf(report,vclass_name,vclass_count,totalcount,rolling_avg_count,conges
     overall_summary_table.axis('off')
     tb2 = overall_summary_table.table(cellText=overall_summary, colLabels=('Average Congestion Index','Average number of vehicles in road at a time'), loc='center')
 
-    pdf_filename = os.path.join('reportpdfs','{}.pdf'.format(report.video.video_name))
-    reportpdf = PdfPages(os.path.join(settings.BASE_DIR,'static',pdf_filename))
+    pdf_filename = os.path.join('reportpdfs', '{}.pdf'.format(report.video.video_name))
+    reportpdf = PdfPages(os.path.join(settings.BASE_DIR, 'static', pdf_filename))
     reportpdf.savefig(figcount)
     reportpdf.savefig(figcongestion)
     reportpdf.savefig(figcontrib)
