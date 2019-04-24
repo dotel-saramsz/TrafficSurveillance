@@ -9,7 +9,7 @@ from . import cvrender
 class StationForm(forms.ModelForm):
     class Meta:
         model = Station
-        fields = ['station_name','lat_pos','lon_pos','station_pic']
+        fields = ['station_name', 'lat_pos', 'lon_pos', 'station_pic']
 
 
 class VideoAdminForm(forms.ModelForm):
@@ -18,7 +18,7 @@ class VideoAdminForm(forms.ModelForm):
         entered_filename = formdata.get('video_filename')
         actual_filename = os.path.join(settings.VIDEO_DIR,entered_filename)
         try:
-            with open(actual_filename,'r') as videofile:
+            with open(actual_filename, 'r') as videofile:
                 pass
             return formdata
         except FileNotFoundError:
@@ -53,4 +53,4 @@ class VideoAdminForm(forms.ModelForm):
 
     class Meta:
         model = SurveillanceVideo
-        fields = ['timestamp','station','video_filename','lane_dimens','duration','last_analysed']
+        fields = ['timestamp', 'station', 'video_filename', 'lane_dimens', 'duration']

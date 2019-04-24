@@ -74,7 +74,7 @@ def list_stations(request):
     return render(request, 'surveillanceapp/stationlist.html', {'title': 'Station List', 'station_list': station_list})
 
 
-def station_detail(request,pk):
+def station_detail(request, pk):
     try:
         station = Station.objects.get(pk=pk)
         folder_name = station.station_name
