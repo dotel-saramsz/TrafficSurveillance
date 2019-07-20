@@ -25,6 +25,17 @@ Bus,
 Pickup,
 Truck
 
+![Dashboard](https://kathmanduchallenge.org/sites/default/files/inline-images/summary%20report%20gen.png)
+Fig: The total count of 8 classes after the analysis of a surveillance footage
+
+![Detection](https://kathmanduchallenge.org/sites/default/files/inline-images/video%20analysis.png)
+Fig: Demonstration of the object detection algorithm detecting the vehicles in the video with the graphs displayed in the web
+
+![Pattern](https://kathmanduchallenge.org/sites/default/files/inline-images/summary%20report-1.png)
+Fig: The vehicle mobility pattern for different classes of vehicles
+
+![More plots](https://kathmanduchallenge.org/sites/default/files/inline-images/summary%20report-1.png)
+Fig: Some more sample of the plots generated during the analysis of the video (Above plot shows vehicle count and below plot shows vehicle road occupancy)
 
 ---- Note, for the web sockets to function,additional dependencies are required ----
 1. Django Channels v1.0.2
