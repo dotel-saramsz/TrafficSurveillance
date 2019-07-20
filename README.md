@@ -6,19 +6,23 @@ estimate the road occupancy with client-server based monitoring service. It empl
 through transfer learning on self-constructed dataset of Nepali vehicles. 
 
 The program analyses a video surveillance footage, classifies the vehicles frame by frame and communicates the information to the client side through sockets using Django channels. This information is then used to visualize the current vehicles count and congestion in graphical format.
+
 The data of the entire video is also accumulated to provide analytics like:
+
 -How the road occupancy scenario changes with time
+
 -How the vehicle count changes over time for each class of vehicle
+
 -The contribution of each vehicle class to the overall congestion
 
 8 classes of Nepali Vehicles are detected:
-Bike
-Car
-Taxi
-Micro
-Tempo
-Bus
-Pickup
+Bike,
+Car,
+Taxi,
+Micro,
+Tempo,
+Bus,
+Pickup,
 Truck
 
 
